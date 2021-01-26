@@ -28,19 +28,19 @@ window.onload = function() {
 
 /*-----------------各类控制函数-------------------------*/
 
-/*生成随机数*/
+/*生成随机数 */
 function getRandom(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-/*克隆数组*/
+/*克隆数组 */
 function cloneArr(arr) {
     // 从第一个字符就开始 copy
     // slice(start,end) 方法可从已有的数组中返回选定的元素。
     return arr.slice(0)
 }
 
-/*数组洗牌*/
+/*数组洗牌 */
 function shuffle(arr) {
     let newArr = [];
     newArr = arr;
@@ -53,14 +53,20 @@ function shuffle(arr) {
     return newArr
 }
 
-/*抽取牌组最上方一张卡*/
+/*抽取牌组最上方一张卡至手卡 */
 function drawCard() {
     for (var i=0; i<8; i++) {
         var handID = 'p1-hand' + i.toString();
         element = document.getElementById(handID);
-        if (element.src == emptysrc) {
+        if (element.src == emptysrc) {  //如果该卡槽为空
           element.src = P1Deck.pop();
           break;
         }
     }
+}
+
+
+/* 显示卡片信息*/
+function showCardInfo() {
+    
 }
