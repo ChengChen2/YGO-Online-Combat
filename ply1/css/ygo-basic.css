@@ -1,0 +1,147 @@
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+
+/* 为了防止块级元素被浮动影响导致大小为0，专门定义伪类用于清除浮动*/
+/* 所有使用该类的元素的之前和之后均清除浮动*/
+.clearf:before,
+.clearf:after {
+  content: " ";
+  display: block;
+  clear: both;  /* 左右浮动均清除*/
+}
+
+.colm-mainfield,
+.colm-controlfield,
+.colm-deckfield,
+.colm-1,
+.colm-2,
+.colm-3,
+.colm-4,
+.colm-5,
+.colm-6,
+.colm-7,
+.colm-8,
+.colm-9,
+.colm-10{
+  display: block;
+  position: absolute;
+  min-height: 1px;
+  float: left;
+}
+
+.colm-mainfield {
+  width: 800px;
+}
+
+.colm-controlfield {
+  width: 340px;
+}
+
+.colm-deckfield {
+  width: 164px;
+}
+
+.colm-1 {
+  width: 10%;
+}
+
+.colm-2 {
+  width: 20%;
+}
+
+.colm-3 {
+  width: 30%;
+}
+
+.colm-4 {
+  width: 40%;
+}
+
+.colm-5 {
+  width: 50%;
+}
+
+.colm-6 {
+  width: 60%;
+}
+
+.colm-7 {
+  width: 70%;
+}
+
+.colm-8 {
+  width: 80%;
+}
+
+.colm-9 {
+  width: 90%;
+}
+
+.colm-10 {
+  width: 100%
+}
+
+.height-total {
+  height: 800px;
+}
+
+.height-1,
+.height-2,
+.height-3,
+.height-4,
+.height-5,
+.height-6,
+.height-7,
+.height-8,
+.height-9,
+.height-10{
+  display: block;
+  position: relative;
+  min-height: 1px;
+  float: left;
+}
+
+.height-1 {
+  height: 10%;
+}
+
+.height-2 {
+  height: 20%;
+}
+
+.height-3 {
+  height: 30%;
+}
+
+.height-4 {
+  height: 40%;
+}
+
+.height-5 {
+  height: 50%;
+}
+
+.height-6 {
+  height: 60%;
+}
+
+.height-7 {
+  height: 70%;
+}
+
+.height-8 {
+  height: 80%;
+}
+
+.height-9 {
+  height: 90%;
+}
+
+.height-10 {
+  height: 100%;
+}

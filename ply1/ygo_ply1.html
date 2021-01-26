@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/normalize/8.0.0/normalize.min.css">
+    <link rel="stylesheet" href="css/ygo-main.css">
+    <link rel="stylesheet" href="css/ygo-basic.css">
+    <script type="text/javascript" src="js/game-control.js"></script>
+    <title>CC-游戏王卡牌决斗</title>
+  </head>
+  <body>
+    <style>
+      body {
+        width: 1820px;
+        background-image: url(image/background/background.jpg);
+      }
+    </style>
+    <div class="header clearf"></div>
+    <div class="control-field colm-controlfield height-total clearf">
+      <div class="card-field">
+        <img id="card-info" class="card" src="">
+      </div>
+      <div class="option-button">
+        <button class="button" type="button" name="attkSummon" onclick="attkSummon()">攻击召唤</button>
+        <button class="button" type="button" name="defenSummon" onclick="defenSummon()">守备召唤</button>
+        <button class="button" type="button" name="backSummon" onclick="backSummon()">背盖召唤</button>
+        <button class="button" type="button" name="changeState" onclick="changeState()">更变形式</button>
+        <button class="button" type="button" name="launchCard" onclick="launchCard()">发动(手卡)</button>
+        <button class="button" type="button" name="coverCard" onclick="coverCard()">覆盖(手卡)</button>
+        <button class="button" type="button" name="openCard" onclick="openCard()">打开盖卡</button>
+        <button class="button" type="button" name="backtoHand" onclick="backtoHand()">回到手卡</button>
+        <button class="button" type="button" name="backtoDeck" onclick="backtoDeck()">回到卡组</button>
+        <button class="button" type="button" name="sendtoTomb" onclick="sendtoTomb()">送去墓地</button>
+        <button class="button" type="button" name="sendtoGameout" onclick="sendtoGameout()">除去游戏外</button>
+        <button class="button" type="button" name="selectDeck" onclick="selectDeck()">从卡组中选择</button>
+        <button class="button" type="button" name="selectTomb" onclick="selectTomb()">从墓地中选择</button>
+        <button class="button" type="button" name="selectGameout" onclick="selectGameout()">从游戏外选择</button>
+      </div>
+    </div>
+
+    <div class="main-field  colm-mainfield height-total clearf">
+      <div class="hand-field colm-10 height-2">  <!-- 对方手卡置卡区(上限8张) -->
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+        <div class="item">
+
+        </div>
+      </div>
+      <div class="battle-field colm-10 height-6">
+        <div class="card-field">  <!-- 对方战场卡牌区域 -->
+          <div id="p2field0" class="item">  <!-- 对方怪兽区 -->
+
+          </div>
+          <div id="p2field1" class="item">
+
+          </div>
+          <div id="p2field2" class="item">
+
+          </div>
+          <div id="p2field3" class="item">
+
+          </div>
+          <div id="p2field4" class="item">
+
+          </div>
+          <div id="p2field5" class="item">  <!-- 对方魔法陷阱区 -->
+
+          </div>
+          <div id="p2field6" class="item">
+
+          </div>
+          <div id="p2field7" class="item">
+
+          </div>
+          <div id="p2field8" class="item">
+
+          </div>
+          <div id="p2field9" class="item">
+
+          </div>
+        </div>
+
+        <div class="card-field">  <!-- 我方战场卡牌区域 -->
+          <div id="p1field0" class="item" onclick="selectCard(0, this.id)">  <!-- 怪兽区(上限5张) -->
+            <img id="p1-field0" class="card" onmouseover="showInfoField(0)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field1" class="item" onclick="selectCard(1, this.id)">
+            <img id="p1-field1" class="card" onmouseover="showInfoField(1)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field2" class="item" onclick="selectCard(2, this.id)">
+            <img  id="p1-field2" class="card" onmouseover="showInfoField(2)" onmouseout="showInfoField('NoCard')"src="">
+          </div>
+          <div id="p1field3" class="item" onclick="selectCard(3, this.id)">
+            <img id="p1-field3" class="card" onmouseover="showInfoField(3)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field4" class="item" onclick="selectCard(4, this.id)">
+            <img id="p1-field4" class="card" onmouseover="showInfoField(4)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field5" class="item" onclick="selectCard(5, this.id)">  <!-- 魔法陷阱区(上限5张) -->
+            <img id="p1-field5" class="card" onmouseover="showInfoField(5)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field6" class="item" onclick="selectCard(6, this.id)">
+            <img id="p1-field6" class="card" onmouseover="showInfoField(6)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field7" class="item" onclick="selectCard(7, this.id)">
+            <img id="p1-field7" class="card" onmouseover="showInfoField(7)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field8" class="item" onclick="selectCard(8, this.id)">
+            <img id="p1-field8" class="card" onmouseover="showInfoField(8)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+          <div id="p1field9" class="item" onclick="selectCard(9, this.id)">
+            <img id="p1-field9" class="card" onmouseover="showInfoField(9)" onmouseout="showInfoField('NoCard')" src="">
+          </div>
+        </div>
+      </div>
+      <div class="hand-field colm-10 height-2">
+        <div class="card-field">  <!-- 我方手卡置卡区(上限8张) -->
+          <div class="item">
+            <img id="p1-hand0" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(0, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand1" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(1, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand2" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(2, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand3" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(3, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand4" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(4, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand5" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(5, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand6" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(6, this.id, this.src)" src="">
+          </div>
+          <div class="item">
+            <img id="p1-hand7" class="card" onmouseover="showInfoHand(this.src)" onmouseout="showInfoHand('')" onclick="selectHand(7, this.id, this.src)" src="">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 卡组，墓地，环境卡槽区 -->
+    <div class="rside-field colm-deckfield height-total clearf">
+      <div class="item env">
+        <img id="p1-gameout" class="card-gameout" onmouseover="showInfoHand(this.src)" src="">
+      </div>
+      <div class="item tomb">
+        <img id="p1-tomb" class="card-tomb" onmouseover="showInfoHand(this.src)" src="">
+      </div>
+      <div class="item deck">
+        <img id="deck_r" class="card" src="image/cards/cardback.jpg" alt="cardback" onclick="drawCard()">
+      </div>
+    </div>
+    <div class="footer colm-10 clearf"></div>
+  </body>
+</html>
