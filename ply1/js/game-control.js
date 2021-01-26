@@ -4,6 +4,11 @@ var P1DeckNum = 41;  //我方牌组卡片数量
 
 var P1Deck = [];  //储存我方牌组所有卡片src
 
+var SelectedCard = {  //被选中的卡对象
+    type: "none",  //卡的来源类型（手牌，场上）
+    cardsrc: "none"  //卡的src
+};
+
 /*-----------------游戏控制逻辑部分-------------------*/
 
 //储存P1卡组所有卡片路径
@@ -65,8 +70,19 @@ function drawCard() {
     }
 }
 
-
 /* 显示卡片信息*/
-function showCardInfo() {
-    
+function showCardInfo(cardsrc, ply) {
+    element = document.getElementById('card-info');
+    if (ply == 'player1' && cardsrc != emptysrc) {  //显示我方卡牌信息（卡槽不为空）
+        element.src = cardsrc;
+    } else if (ply == 'player2' && cardsrc != emptysrc) {  //显示对方卡牌信息（卡槽不为空）
+
+        /*注意卡的状态，是否为手卡 */
+    }
+}
+
+/*（游戏中始终只有一张卡牌处于选中状态）*/
+function selectCard(type, cardsrc) {
+    SelectedCard.type = type;
+    SelectedCard.cardsrc = cardsrc;
 }
