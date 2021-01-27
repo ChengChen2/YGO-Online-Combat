@@ -1,12 +1,13 @@
 
 var P1DeckName = "Deck_KaiMa";  //我方牌组名
 var P1DeckNum = 41;  //我方牌组卡片数量
+var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面src
 
 var P1Deck = [];  //储存我方牌组所有卡片src
 
 var SelectedCard = {  //被选中的卡对象
     type: "none",  //卡的来源类型（手牌，场上）
-    cardsrc: "none"  //卡的src
+    cardsrc: "none"  //卡片的src
 };
 
 /*-----------------游戏控制逻辑部分-------------------*/
@@ -70,19 +71,79 @@ function drawCard() {
     }
 }
 
-/* 显示卡片信息*/
-function showCardInfo(cardsrc, ply) {
-    element = document.getElementById('card-info');
-    if (ply == 'player1' && cardsrc != emptysrc) {  //显示我方卡牌信息（卡槽不为空）
-        element.src = cardsrc;
-    } else if (ply == 'player2' && cardsrc != emptysrc) {  //显示对方卡牌信息（卡槽不为空）
+/**
+ * 显示卡片信息
+ * show card info
+ * @param {string} type - card source type (hand/field)
+ * @param {string} cardsrc - card url
+ * @param {string} ply - player tag 
+ */
+function showCardInfo(type, cardsrc, ply) {
+    if (cardsrc != emptysrc) {
+        element = document.getElementById('card-info');
 
-        /*注意卡的状态，是否为手卡 */
+        switch(ply) {
+            /*我方卡片一律显示 */
+            case 'player1':
+                element.src = cardsrc;
+                break;
+            /*对方卡片视情况显示 */
+            case 'player2':
+                if (type == 'hand') {  //手卡均不显示
+                    element.src = CardBackSrc;
+                } else {
+                    /*根据卡片状态来判断如何显示 */
+                }
+            default: break;
+        }
     }
 }
 
-/*（游戏中始终只有一张卡牌处于选中状态）*/
-function selectCard(type, cardsrc) {
-    SelectedCard.type = type;
-    SelectedCard.cardsrc = cardsrc;
+
+/**
+ * 选择卡片（游戏中始终只有一张卡牌处于选中状态）,并记录当前卡片信息
+ * @param {string} id - container id
+ * @param {string} type - card source type (hand/field)
+ * @param {string} cardsrc - card url
+ * @param {string} ply - player tag
+ */
+function selectCard(id, type, cardsrc, ply) {
+    if(cardsrc != emptysrc) {
+        SelectedCard.type = type;
+        SelectedCard.cardsrc = cardsrc;
+        /*选择卡片之前首先清空场上已选中的卡片样式再更新 */
+        cleanSelected();
+
+        switch(ply) {
+            case 'player1':
+                if(type == 'hand') {
+                    
+                }
+                break;
+            case 'player2':
+                break;
+            default: break;
+        }
+    }
+}
+
+/**
+ * 清除所有卡片被选中的状态
+ * 注意这里手牌和场上用于显示被选中状态的容器不同
+ * 手牌的是img容器而场上用的是item容器
+ */
+function cleanSelected() {
+    for (var i=0; i<8; i++) {
+        var handIDPly1 = 'p1-hand' + i.toString();
+        element = document.getElementById(handIDPly1);
+        element.setAttribute("class", "card");
+    }
+    for (var i=0; i<10; i++) {
+        var fieldIDPly1 = 'p1field' + i.toString();
+        var fieldIDPly2 = 'p2field' + i.toString();
+        element = document.getElementById(fieldIDPly1);
+        element2 = document.getElementById(fieldIDPly2);
+        element.setAttribute("class", "item");
+        element2.setAttribute("class", "item");
+    }
 }
