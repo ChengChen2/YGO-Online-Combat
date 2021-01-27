@@ -108,6 +108,7 @@ function showCardInfo(type, cardsrc, ply) {
  * @param {string} ply - player tag
  */
 function selectCard(id, type, cardsrc, ply) {
+    console.log(cardsrc);
     if(cardsrc != emptysrc) {
         SelectedCard.type = type;
         SelectedCard.cardsrc = cardsrc;
@@ -117,7 +118,11 @@ function selectCard(id, type, cardsrc, ply) {
         switch(ply) {
             case 'player1':
                 if(type == 'hand') {
-                    
+                    element = document.getElementById(id);
+                    element.setAttribute("class", "card-selected");
+                } else {
+                    element = document.getElementById(id);
+                    element.setAttribute("class", "item-selected");
                 }
                 break;
             case 'player2':
