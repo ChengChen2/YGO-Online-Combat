@@ -10,6 +10,24 @@ var SelectedCard = {  //被选中的卡对象
     cardsrc: "none"  //卡片的src
 };
 
+// 储存场上卡片信息（10张卡图片src，状态）
+var fieldArray = { 
+    FieldCards: [
+        { "imgsrc": "null", "state": "null"}, 
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+    ] 
+};
+
+//fieldArray.FieldCards[0].imgsrc = "aa";
+
 /*-----------------游戏控制逻辑部分-------------------*/
 
 //储存P1卡组所有卡片路径
@@ -108,7 +126,6 @@ function showCardInfo(type, cardsrc, ply) {
  * @param {string} ply - player tag
  */
 function selectCard(id, type, cardsrc, ply) {
-    console.log(cardsrc);
     if(cardsrc != emptysrc) {
         SelectedCard.type = type;
         SelectedCard.cardsrc = cardsrc;
