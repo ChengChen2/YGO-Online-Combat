@@ -265,43 +265,6 @@
   margin: 1px 40px;
 }
 
-.main-field .battle-field .card-field .item .card-attk-selected {
-  width: 65px;
-  height: 94px;
-  margin: 1px 40px;
-  border: 2px solid #FFFF37;
-}
-
-.main-field .battle-field .card-field .item .card-defen-selected {
-  width: 65px;
-  height: 94px;
-  transform: rotate(90deg);
-  margin: 1px 40px;
-  border: 2px solid #FFFF37;
-}
-
-.main-field .battle-field .card-field .item .card-back-selected {
-  width: 65px;
-  height: 94px;
-  transform: rotate(90deg);
-  margin: 1px 40px;
-  border: 2px solid #FFFF37;
-}
-
-.main-field .battle-field .card-field .item .card-on-selected {
-  width: 65px;
-  height: 94px;
-  margin: 1px 40px;
-  border: 2px solid #FFFF37;
-}
-
-.main-field .battle-field .card-field .item .card-off-selected {
-  width: 65px;
-  height: 94px;
-  margin: 1px 40px;
-  border: 2px solid #FFFF37;
-}
-
 /* 页脚*/
 .footer {
   /* background-color: #ADADAD; */

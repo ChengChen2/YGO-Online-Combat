@@ -1,17 +1,18 @@
 
 var P1DeckName = "Deck_KaiMa";  //我方牌组名
 var P1DeckNum = 41;  //我方牌组卡片数量
-var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面src
+var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //储存我方牌组所有卡片src
 
 var SelectedCard = {  //被选中的卡对象
     type: "none",  //卡的来源类型（手牌，场上）
-    cardsrc: "none"  //卡片的src
+    cardNo: -1,  //卡片的序号
+    player: "none"  //玩家号
 };
 
-// 储存场上卡片信息（10张卡图片src，状态）
-var fieldArray = { 
+// 储存场上卡片信息（10张卡的图片src，状态）
+var fieldArrayPly1 = { 
     FieldCards: [
         { "imgsrc": "null", "state": "null"}, 
         { "imgsrc": "null", "state": "null"},
@@ -26,9 +27,24 @@ var fieldArray = {
     ] 
 };
 
-//fieldArray.FieldCards[0].imgsrc = "aa";
+var fieldArrayPly2 = { 
+    FieldCards: [
+        { "imgsrc": "null", "state": "null"}, 
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+        { "imgsrc": "null", "state": "null"},
+    ] 
+};
 
-/*-----------------游戏控制逻辑部分-------------------*/
+//fieldArrayPly1.FieldCards[0].imgsrc = "aa";
+
+/*---------------------游戏控制逻辑部分------------------------*/
 
 //储存P1卡组所有卡片路径
 for (var i=0; i<P1DeckNum; i++) {
@@ -50,7 +66,23 @@ window.onload = function() {
 }
 
 
-/*-----------------各类控制函数-------------------------*/
+//----------------------------------------------------------------
+/*抽取牌组最上方一张卡至手卡 */
+function drawCard() {
+    for (var i=0; i<8; i++) {
+        var handID = 'p1-hand' + i.toString();
+        element = document.getElementById(handID);
+        if (element.src == emptysrc) {  //如果该卡槽为空
+          element.src = P1Deck.pop();
+          break;
+        }
+    }
+
+    /**
+     * 告知对手哪张手卡卡槽添加了一张卡
+     * 
+     */
+}
 
 /*生成随机数 */
 function getRandom(min, max) {
@@ -77,74 +109,64 @@ function shuffle(arr) {
     return newArr
 }
 
-/*抽取牌组最上方一张卡至手卡 */
-function drawCard() {
-    for (var i=0; i<8; i++) {
-        var handID = 'p1-hand' + i.toString();
-        element = document.getElementById(handID);
-        if (element.src == emptysrc) {  //如果该卡槽为空
-          element.src = P1Deck.pop();
-          break;
-        }
-    }
-}
 
+//----------------------------------------------------------------
 /**
  * 显示卡片信息
  * show card info
  * @param {string} type - card source type (hand/field)
  * @param {string} cardsrc - card url
+ * @param {int} cardNo - card No 
  * @param {string} ply - player tag 
  */
-function showCardInfo(type, cardsrc, ply) {
+function showCardInfo(type, cardsrc, cardNo, ply) {
     if (cardsrc != emptysrc) {
         element = document.getElementById('card-info');
 
         switch(ply) {
             /*我方卡片一律显示 */
             case 'player1':
-                element.src = cardsrc;
+                if (type == 'hand') {  //手卡均不显示
+                    element.src = cardsrc;
+                } else {  //场上卡片按数组记录的img的src显示（若直接取img容器的src则无法看到我方盖卡）
+                    element.src = fieldArrayPly1.FieldCards[cardNo].imgsrc;
+                }
                 break;
             /*对方卡片视情况显示 */
             case 'player2':
                 if (type == 'hand') {  //手卡均不显示
                     element.src = CardBackSrc;
-                } else {
-                    /*根据卡片状态来判断如何显示 */
+                } else {  //场上卡片直接按容器的img值显示
+                    element.src = cardsrc;
                 }
+                break;
             default: break;
         }
     }
 }
-
 
 /**
  * 选择卡片（游戏中始终只有一张卡牌处于选中状态）,并记录当前卡片信息
  * @param {string} id - container id
  * @param {string} type - card source type (hand/field)
  * @param {string} cardsrc - card url
+ * @param {int} cardNo - card No
  * @param {string} ply - player tag
  */
-function selectCard(id, type, cardsrc, ply) {
-    if(cardsrc != emptysrc) {
+function selectCard(id, type, cardsrc, cardNo, ply) {
+    if (cardsrc != emptysrc) {
         SelectedCard.type = type;
-        SelectedCard.cardsrc = cardsrc;
+        SelectedCard.cardNo = cardNo;
+        SelectedCard.player = ply;
         /*选择卡片之前首先清空场上已选中的卡片样式再更新 */
         cleanSelected();
 
-        switch(ply) {
-            case 'player1':
-                if(type == 'hand') {
-                    element = document.getElementById(id);
-                    element.setAttribute("class", "card-selected");
-                } else {
-                    element = document.getElementById(id);
-                    element.setAttribute("class", "item-selected");
-                }
-                break;
-            case 'player2':
-                break;
-            default: break;
+        if (type == 'hand') {
+            element = document.getElementById(id);
+            element.setAttribute("class", "card-selected");
+        } else {
+            element = document.getElementById(id);
+            element.setAttribute("class", "item-selected");
         }
     }
 }
@@ -167,5 +189,137 @@ function cleanSelected() {
         element2 = document.getElementById(fieldIDPly2);
         element.setAttribute("class", "item");
         element2.setAttribute("class", "item");
+    }
+}
+
+
+//----------------------------------------------------------------
+/**
+ * 我方从手牌向场上放置卡片，并发出放置指令 (攻击，防御，背盖防御，发动，盖卡)
+ * @param {string} placetype - place type (attack/defence/back/on/off)
+ * @param {string} cardtype - card type (monster/magic)
+ */
+function placeCard(placetype, cardtype) {
+
+    var cardslot = findEmptySlot(cardtype) //寻找空的卡槽
+    var cardsrc;
+
+    if(cardslot == -1) {
+        alert("卡槽已满");
+    } else {
+        if (SelectedCard.type == 'hand') {  //放置卡片必须来源于手牌
+            /*获取被选中手卡信息 */
+            var handID = "p1-hand" + (SelectedCard.cardNo).toString();
+            element = document.getElementById(handID);
+            cardsrc = element.src;
+            element.src = "";  //手牌该卡消失
+            cleanSelected();  //取消所有选中框
+
+            /*更新战场信息 */
+            fieldArrayPly1.FieldCards[cardslot].imgsrc = cardsrc;
+            fieldArrayPly1.FieldCards[cardslot].state = placetype;
+
+            /*发出指令，执行更新战场卡片的函数 */
+            var fieldID = "p1-field" + cardslot.toString();
+            updateField(fieldID, placetype, cardsrc);
+
+            /**
+             * 放置后告知对手执行战场更新函数;
+             * 放置完成后记得告诉对手哪张手卡消失了;
+             */
+        }
+    }
+}
+
+/**
+ * 战场状态更新，单独更新某一个卡槽
+ * @param {string} fieldID - field img container id 
+ * @param {string} cardstate - state of card (attk/defen/back/on/off)
+ * @param {string} cardsrc - card source url
+ */
+function updateField(fieldID, cardstate, cardsrc) { 
+    var stateclass = "card-" + cardstate;
+
+    element = document.getElementById(fieldID);
+    element.setAttribute("class", stateclass);  //更新对应img容器的class
+
+    /**
+     * 如果是盖卡或背盖召唤直接显示卡片背面
+     * 检查showCardInfo函数可知对于我方来说，即使卡片是背面图片仍可以显示卡片信息
+     */
+    if (cardstate == 'back' || cardstate == 'off') {  
+        element.src = CardBackSrc;
+    } else {
+        element.src = cardsrc;
+    }
+}
+
+/**
+ * 返回目前场上的空卡槽序号（怪兽卡槽与魔法陷阱卡槽区分开）
+ * @param {string} slottype - type of wanted empty slot (monster/magic) 
+ */
+function findEmptySlot(slottype) {
+    var emptySlot = -1;
+
+    if (slottype == 'monster') {  //放置怪兽卡搜索0-4卡槽
+        for (var i=0; i<5; i++) {
+            if (fieldArrayPly1.FieldCards[i].state == "null") {
+                emptySlot = i;
+                break;
+            }
+        }
+    } else {  //放置魔法陷阱卡搜索5-9卡槽
+        for (var i=5; i<10; i++) {
+            if (fieldArrayPly1.FieldCards[i].state == "null") {
+                emptySlot = i;
+                break;
+            }
+        }
+    }
+
+    return emptySlot;
+}
+
+
+//----------------------------------------------------------------
+
+/**
+ * 更变卡片的表示形式
+ * 更变顺序为：攻击 -> 防御 -> 背盖 -> 攻击， 盖覆卡 -> 表侧卡 -> 盖覆卡
+ * @param {string} cardtype - card type (monster/magic)
+ */
+function changeState(cardtype) {
+    if (SelectedCard.type == 'field' && SelectedCard.player == 'player1') {  //必须是我方场上的卡方可更变表示形式
+        var fieldID = "p1-field" + (SelectedCard.cardNo).toString();
+        var cardsrc = fieldArrayPly1.FieldCards[SelectedCard.cardNo].imgsrc;
+        var cardstate = fieldArrayPly1.FieldCards[SelectedCard.cardNo].state;
+
+        switch (cardtype) {
+            case 'monster':
+                if (cardstate == 'attk') {
+                    cardstate = "defen";
+                } else if (cardstate == 'defen') {
+                    cardstate = "back";
+                } else if (cardstate == 'back') {
+                    cardstate = "attk";
+                }
+                break;
+            case 'magic':
+                if (cardstate == 'off') {
+                    cardstate = "on";
+                } else {
+                    cardstate = "off";
+                }
+                break;
+            default:
+                break;
+        }
+
+        fieldArrayPly1.FieldCards[SelectedCard.cardNo].state = cardstate;  //更新场上卡片表示形式信息
+        updateField(fieldID, cardstate, cardsrc);  //更新指定卡槽
+
+        /**
+         * 告知对手某一卡槽的表示形式发生变化，执行战场更新函数
+         */
     }
 }
