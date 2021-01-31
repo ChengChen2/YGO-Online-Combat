@@ -126,7 +126,7 @@ function showCardInfo(type, cardsrc, cardNo, ply) {
         switch(ply) {
             /*我方卡片一律显示 */
             case 'player1':
-                if (type == 'hand') {  //手卡均不显示
+                if (type == 'hand') {  //手卡均显示
                     element.src = cardsrc;
                 } else {  //场上卡片按数组记录的img的src显示（若直接取img容器的src则无法看到我方盖卡）
                     element.src = fieldArrayPly1.FieldCards[cardNo].imgsrc;
@@ -155,11 +155,11 @@ function showCardInfo(type, cardsrc, cardNo, ply) {
  */
 function selectCard(id, type, cardsrc, cardNo, ply) {
     if (cardsrc != emptysrc) {
+        cleanSelected();  //选择卡片之前首先清空场上已选中的卡片样式再更新
+
         SelectedCard.type = type;
         SelectedCard.cardNo = cardNo;
         SelectedCard.player = ply;
-        /*选择卡片之前首先清空场上已选中的卡片样式再更新 */
-        cleanSelected();
 
         if (type == 'hand') {
             element = document.getElementById(id);
@@ -190,6 +190,11 @@ function cleanSelected() {
         element.setAttribute("class", "item");
         element2.setAttribute("class", "item");
     }
+
+    /*重置被选中的卡片信息 */
+    SelectedCard.type = "null";
+    SelectedCard.cardNo = -1;
+    SelectedCard.player = "null";
 }
 
 
@@ -213,7 +218,7 @@ function placeCard(placetype, cardtype) {
             element = document.getElementById(handID);
             cardsrc = element.src;
             element.src = "";  //手牌该卡消失
-            cleanSelected();  //取消所有选中框
+            cleanSelected();  //取消所有选中状态
 
             /*更新战场信息 */
             fieldArrayPly1.FieldCards[cardslot].imgsrc = cardsrc;
@@ -238,7 +243,13 @@ function placeCard(placetype, cardtype) {
  * @param {string} cardsrc - card source url
  */
 function updateField(fieldID, cardstate, cardsrc) { 
-    var stateclass = "card-" + cardstate;
+    var stateclass;
+
+    if (cardstate == 'none') {  //若卡片移出场外则img容器的class回到默认的card
+        stateclass = "card";
+    } else {
+        stateclass = "card-" + cardstate;
+    }
 
     element = document.getElementById(fieldID);
     element.setAttribute("class", stateclass);  //更新对应img容器的class
@@ -255,8 +266,8 @@ function updateField(fieldID, cardstate, cardsrc) {
 }
 
 /**
- * 返回目前场上的空卡槽序号（怪兽卡槽与魔法陷阱卡槽区分开）
- * @param {string} slottype - type of wanted empty slot (monster/magic) 
+ * 返回当前我方场上/手牌的空卡槽序号（怪兽卡槽与魔法陷阱卡槽也要区分开）
+ * @param {string} slottype - type of wanted empty slot (monster/magic/hand) 
  */
 function findEmptySlot(slottype) {
     var emptySlot = -1;
@@ -268,11 +279,20 @@ function findEmptySlot(slottype) {
                 break;
             }
         }
-    } else {  //放置魔法陷阱卡搜索5-9卡槽
+    } else if (slottype == 'magic') {  //放置魔法陷阱卡搜索5-9卡槽
         for (var i=5; i<10; i++) {
             if (fieldArrayPly1.FieldCards[i].state == "null") {
                 emptySlot = i;
                 break;
+            }
+        }
+    } else if (slottype == 'hand') {
+        for (var i=0; i<8; i++) {
+            var handID = 'p1-hand' + i.toString();
+            element = document.getElementById(handID);
+            if (element.src == emptysrc) {  //如果该卡槽为空
+              emptySlot = i;
+              break;
             }
         }
     }
@@ -315,11 +335,50 @@ function changeState(cardtype) {
                 break;
         }
 
-        fieldArrayPly1.FieldCards[SelectedCard.cardNo].state = cardstate;  //更新场上卡片表示形式信息
+        fieldArrayPly1.FieldCards[SelectedCard.cardNo].state = cardstate;  //更新场上卡片状态信息
         updateField(fieldID, cardstate, cardsrc);  //更新指定卡槽
 
         /**
          * 告知对手某一卡槽的表示形式发生变化，执行战场更新函数
          */
+    }
+}
+
+
+//----------------------------------------------------------------
+
+function backtoHand() {
+    if (SelectedCard.type == 'field') {  //卡片必须来源于场上
+        
+        var cardslot = findEmptySlot('hand');  //寻找我方空的手牌卡槽 
+        var cardNo = SelectedCard.cardNo;  //被选中卡牌的序号
+        var fieldID;
+
+        if (cardslot == -1) {
+            alert("手牌已满");
+        } else {
+            var handID = "p1-hand" + (cardslot).toString();
+            element = document.getElementById(handID);
+
+            /*我方场上卡牌从记录场上信息的数组中获取卡片 */
+            if (SelectedCard.player == 'player1') {  
+                fieldID = "p1-field" + cardNo.toString();
+                element.src = fieldArrayPly1.FieldCards[cardNo].imgsrc;  //手牌获取被选中的卡片
+                fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
+                fieldArrayPly1.FieldCards[cardNo].state = "null";
+
+            /*对方场上卡牌直接从容器中获取卡片（必须是正面表示的卡片） */
+            } else {  
+                fieldID = "p2-field" + cardNo.toString();
+                element.src = document.getElementById(fieldID).src;
+            }
+            
+            /*更新战场并通知对方玩家也执行战场更新函数 */
+            updateField(fieldID, "null", "");
+
+            /*清空所有选中状态 */
+            cleanSelected();
+        }
+
     }
 }
