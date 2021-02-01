@@ -6,12 +6,16 @@ var P1DeckName = "Deck_KaiMa";  //我方牌组名
 var P1DeckNum = 41;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
-var P1Deck = [];  //储存我方牌组所有卡片src
+var P1Deck = [];  //我方牌组（储存我方所有卡片src）
+var P2Deck = [];  //对方牌组
+var P1Tomb = [];  //我方墓地（卡片src）
+var P2Tomb = [];  //对方墓地
 
 var SelectedCard = {  //被选中的卡对象
-    type: "none",  //卡的来源类型（手牌，场上）
+    type: "null",  //卡的来源类型（手牌，场上）
     cardNo: -1,  //卡片的序号
-    player: "none"  //玩家号
+    cardSrc: "null",
+    player: "null"  //玩家号
 };
 
 // 储存场上卡片信息（10张卡的图片src，状态）
@@ -167,9 +171,15 @@ function selectCard(id, type, cardsrc, cardNo, ply) {
         if (type == 'hand') {
             element = document.getElementById(id);
             element.setAttribute("class", "card-selected");
+            SelectedCard.cardSrc = cardsrc;  //若从手牌选择直接从img容器获取src
         } else {
-            element = document.getElementById(id);
+            element = document.getElementById(id);  
             element.setAttribute("class", "item-selected");
+            if (ply = 'player1') {
+                SelectedCard.cardSrc = fieldArrayPly1.FieldCards[cardNo].imgsrc;  //若从我方场上选择则由场上状态数组获取卡片src
+            } else {
+                SelectedCard.cardSrc = cardsrc;  //若从对方场上选择则直接从img容器获取src
+            }
         }
     }
 }
@@ -197,6 +207,7 @@ function cleanSelected() {
     /*重置被选中的卡片信息 */
     SelectedCard.type = "null";
     SelectedCard.cardNo = -1;
+    SelectedCard.cardSrc = "null";
     SelectedCard.player = "null";
 }
 
@@ -248,7 +259,7 @@ function placeCard(placetype, cardtype) {
 function updateField(fieldID, cardstate, cardsrc) { 
     var stateclass;
 
-    if (cardstate == 'none') {  //若卡片移出场外则img容器的class回到默认的card
+    if (cardstate == 'null') {  //若卡片移出场外则img容器的class回到默认的card
         stateclass = "card";
     } else {
         stateclass = "card-" + cardstate;
@@ -350,6 +361,9 @@ function changeState(cardtype) {
 
 //----------------------------------------------------------------
 
+/**
+ * 将场上选中的卡牌回到手卡槽
+ */
 function backtoHand() {
     if (SelectedCard.type == 'field') {  //卡片必须来源于场上
         
@@ -366,12 +380,12 @@ function backtoHand() {
             /*我方场上卡牌从记录场上信息的数组中获取卡片 */
             if (SelectedCard.player == 'player1') {  
                 fieldID = "p1-field" + cardNo.toString();
-                element.src = fieldArrayPly1.FieldCards[cardNo].imgsrc;  //手牌获取被选中的卡片
+                element.src = SelectedCard.cardSrc;;  //手牌获取被选中的卡片
                 fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
                 fieldArrayPly1.FieldCards[cardNo].state = "null";
 
             /*对方场上卡牌直接从容器中获取卡片（必须是正面表示的卡片） */
-            } else {  
+            } else if (SelectedCard.cardSrc != CardBackSrc) {  
                 fieldID = "p2-field" + cardNo.toString();
                 element.src = document.getElementById(fieldID).src;
             }
@@ -382,6 +396,42 @@ function backtoHand() {
             /*清空所有选中状态 */
             cleanSelected();
         }
+    }
+}
 
+
+//----------------------------------------------------------------
+
+/**
+ * 将我方的卡片（场上/手牌）送去墓地
+ */
+function sendtoTomb() {
+    var cardsrc = SelectedCard.cardSrc;
+    var cardNo = SelectedCard.cardNo;
+    var fieldID; 
+    
+    if (SelectedCard.player == 'player1') {
+        P1Tomb.push(cardsrc);  //将选中卡片的src存入墓地数组
+        document.getElementById('p1-tomb').src = cardsrc;
+
+        if (SelectedCard.type == 'hand') {
+            var handID = "p1-hand" + (SelectedCard.cardNo).toString();
+            element = document.getElementById(handID);
+            element.src = "";  //手牌该卡消失
+            /**
+             * 告知对方更新我方手牌数
+             */
+        } else {
+            fieldID = "p1-field" + cardNo.toString();
+            fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
+            fieldArrayPly1.FieldCards[cardNo].state = "null";
+            updateField(fieldID, "null", "");  //更新战场
+            /**
+             * 告知对方更新我方战场
+             */
+        }
+
+        /*清空所有选中状态 */
+        cleanSelected();
     }
 }
