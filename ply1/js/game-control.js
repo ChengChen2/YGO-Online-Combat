@@ -3,7 +3,7 @@
 /*--------------------------全局变量-------------------------- */
 
 var P1DeckName = "Deck_KaiMa";  //我方牌组名
-var P1DeckNum = 41;  //我方牌组卡片数量
+var P1DeckNum = 5;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
@@ -380,7 +380,7 @@ function backtoHand() {
             /*我方场上卡牌从记录场上信息的数组中获取卡片 */
             if (SelectedCard.player == 'player1') {  
                 fieldID = "p1-field" + cardNo.toString();
-                element.src = SelectedCard.cardSrc;;  //手牌获取被选中的卡片
+                element.src = SelectedCard.cardSrc;  //手牌获取被选中的卡片
                 fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
                 fieldArrayPly1.FieldCards[cardNo].state = "null";
 
@@ -396,6 +396,39 @@ function backtoHand() {
             /*清空所有选中状态 */
             cleanSelected();
         }
+    }
+}
+
+/**
+ * 将我方被选中的卡片返回卡组
+ */
+function backtoDeck() {
+    if (SelectedCard.player == 'player1') {  //只允许将我方的卡片送回牌组
+        var cardNo = SelectedCard.cardNo;
+
+        if (SelectedCard.type == 'hand') {  //手牌卡片回到卡组
+            var handID = "p1-hand" + cardNo.toString();
+            element = document.getElementById(handID);
+            P1Deck.push(element.src);  //卡片src存回卡组
+            element.src = ""; //手牌被选中卡片消失
+
+            /**
+             * 告知对手手卡变动
+             */
+        } else {  //场上卡片回到卡组
+            var fieldID = "p1-field" + cardNo.toString();
+            P1Deck.push(fieldArrayPly1.FieldCards[cardNo].imgsrc);  //卡片src存回卡组
+            fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
+            fieldArrayPly1.FieldCards[cardNo].state = "null";
+
+            /*更新战场并通知对方玩家也执行战场更新函数 */
+            updateField(fieldID, "null", "");
+        }
+
+        P1Deck = shuffle(cloneArr(P1Deck));
+
+        /*清空所有选中状态 */
+        cleanSelected();
     }
 }
 
@@ -418,6 +451,7 @@ function sendtoTomb() {
             var handID = "p1-hand" + (SelectedCard.cardNo).toString();
             element = document.getElementById(handID);
             element.src = "";  //手牌该卡消失
+
             /**
              * 告知对方更新我方手牌数
              */
@@ -426,6 +460,7 @@ function sendtoTomb() {
             fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
             fieldArrayPly1.FieldCards[cardNo].state = "null";
             updateField(fieldID, "null", "");  //更新战场
+
             /**
              * 告知对方更新我方战场
              */
