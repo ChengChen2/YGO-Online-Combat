@@ -3,7 +3,7 @@
 /*--------------------------全局变量-------------------------- */
 
 var P1DeckName = "Deck_KaiMa";  //我方牌组名
-var P1DeckNum = 5;  //我方牌组卡片数量
+var P1DeckNum = 41;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
@@ -59,17 +59,14 @@ for (var i=0; i<P1DeckNum; i++) {
     P1Deck.push(cardsrc);
 }
 
-// 洗牌
-P1Deck = shuffle(cloneArr(P1Deck));
-//console.log(P1Deck);
-
-// 获取空的img src路径，方便其他函数判断卡槽是否为空
-// window.onload 使函数在html完全加载后执行
+//获取空的img src路径，方便其他函数判断卡槽是否为空
+//window.onload 使函数在html完全加载后执行
 var emptysrc;
 window.onload = function() {
   var handID = 'p1-field0';
   element = document.getElementById(handID);
   emptysrc = element.src;
+  P1Deck = shuffle(cloneArr(P1Deck));  //洗牌
 }
 
 
@@ -114,6 +111,14 @@ function shuffle(arr) {
         newArr[j] = temp
     }
     return newArr
+}
+
+/**
+ * 牌组洗牌
+ */
+function shuffleDeck() {
+    P1Deck = shuffle(cloneArr(P1Deck));
+    alert("牌组已洗牌！");
 }
 
 
@@ -401,6 +406,7 @@ function backtoHand() {
 
 /**
  * 将我方被选中的卡片返回卡组
+ * 默认回到卡组最上方
  */
 function backtoDeck() {
     if (SelectedCard.player == 'player1') {  //只允许将我方的卡片送回牌组
@@ -424,8 +430,6 @@ function backtoDeck() {
             /*更新战场并通知对方玩家也执行战场更新函数 */
             updateField(fieldID, "null", "");
         }
-
-        P1Deck = shuffle(cloneArr(P1Deck));
 
         /*清空所有选中状态 */
         cleanSelected();
@@ -468,5 +472,47 @@ function sendtoTomb() {
 
         /*清空所有选中状态 */
         cleanSelected();
+    }
+}
+
+
+//----------------------------------------------------------------
+/**
+ * 从卡组中选择及从墓地中选择这块函数
+ * 独立处理
+ * 目前这块区域命名为selection-field（暂时没有更好的名字）
+ */
+
+function sf_selectCard(type) {
+    var selectArea = document.getElementById("select-area");
+    selectArea.innerHTML = "";
+
+    var cardset = [];
+
+    switch (type) {
+        case "deck":
+            cardset = P1Deck;
+            break;
+        case "p1tomb":
+            cardset = P1Tomb;
+            break;
+        case "p2tomb":
+            cardset = P2Tomb;
+    }
+
+    for (i=0; i<cardset.length; i++) {
+        var cardImg = document.createElement("img");
+        cardImg.id = i.toString();
+        cardImg.setAttribute("class", "card");
+        cardImg.setAttribute("onmouseover", "sf_showInfo(this.src)");
+        cardImg.src = cardset[i];
+        selectArea.appendChild(cardImg);
+    }
+}
+
+function sf_showInfo(cardsrc) {
+    if (cardsrc != emptysrc) {
+        element = document.getElementById('card-info');
+        element.src = cardsrc;
     }
 }

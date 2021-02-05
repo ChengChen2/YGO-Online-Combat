@@ -51,8 +51,7 @@
   height: 30px;
 }
 
-/* 左右卡牌区*/
-.lside-field,
+/* 右卡牌区*/
 .rside-field {
   background-color: rgba(0, 0, 0, 0.4);  /* 设置透明黑色*/
   float: left;
@@ -60,27 +59,13 @@
   /* background-color: #00DB00; */
 }
 
-.lside-field .item,  /* 左右边区域卡槽*/
+  /* 右边区域卡槽*/
 .rside-field .item {
   display: inline-block;  /* inline使padding margin等只作用于左右, inline-block可作用于上下左右*/
   border: 4px solid #F0F0F0;
   width: 103px;
   height: 150px;
 }
-
-/*
-.lside-field .deck {
-  margin: 15px 30px;
-}
-
-.lside-field .tomb {
-  margin: 0 30px;
-}
-
-.lside-field .gameout {
-  margin: 50px 30px;
-}
-*/
 
 .rside-field .deck {  /* 卡组卡槽*/
   margin: 15px 30px;
@@ -123,8 +108,6 @@
 }
 
 .hand-field {
-  width: 768px;
-  height: 132px;
   margin-top: 15px;
   margin-bottom: 15px;
   margin-left: 50px;
@@ -264,6 +247,53 @@
   height: 94px;
   margin: 1px 40px;
 }
+
+/* 从牌组/墓地选择卡牌区*/
+.card-selection {
+  width: 400px; 
+  height: 700px; 
+  float: right;
+  margin-right: 10px;
+}
+
+.card-selection .selection-area {
+  overflow-y: auto;
+  width: 350px;
+  height: 400px;
+  margin-left: 25px;
+  margin-right: 25px;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.card-selection .selection-area .card {
+  width: 96px;
+  height: 140px;
+  margin-left: 8px; 
+  margin-right: 5px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.card-selection .button-area {
+  width: 350px;
+  height: 300px;
+  margin-left: 25px;
+  margin-right: 25px;
+}
+
+.card-selection .button-area .button {
+  font-family: "Microsoft Yahei";
+  text-align: center;
+  font-weight: 550;
+  float: left;
+  margin-left: 35px;
+  margin-right: 15px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  width: 280px;
+  height: 40px;
+}
+
 
 /* 页脚*/
 .footer {

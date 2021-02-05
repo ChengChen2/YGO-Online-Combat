@@ -32,8 +32,6 @@
         <button class="button" type="button" name="backtoDeck" onclick="backtoDeck()">回到卡组</button>
         <button class="button" type="button" name="sendtoTomb" onclick="sendtoTomb()">送去墓地</button>
         <button class="button" type="button" name="sendtoGameout" onclick="sendtoGameout()">除去游戏外</button>
-        <button class="button" type="button" name="selectDeck" onclick="selectDeck()">从卡组中选择</button>
-        <button class="button" type="button" name="selectTomb" onclick="selectTomb()">从墓地中选择</button>
         <button class="button" type="button" name="selectGameout" onclick="selectGameout()">从游戏外选择</button>
       </div>
     </div>
@@ -174,6 +172,16 @@
         <img id="deck_r" class="card" src="image/cards/cardback.jpg" alt="cardback" onclick="drawCard()">
       </div>
     </div>
-    <div class="footer colm-10 clearf"></div>
+
+    <div class="card-selection">
+      <div id="select-area" class="selection-area"></div>
+      <div class="button-area">
+        <button class="button" type="button" onclick="sf_selectCard('deck')">从牌组中选择（刷新列表）</button>
+        <button class="button" type="button" onclick="sf_selectCard('p1tomb')">从我方墓地选择（刷新列表）</button>
+        <button class="button" type="button" onclick="sf_selectCard('p2tomb')">从对方墓地选择（刷新列表）</button>
+        <button class="button" type="button" onclick="shuffleDeck()">洗牌</button>
+      </div>
+    </div>
+    
   </body>
 </html>
