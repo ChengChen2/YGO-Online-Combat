@@ -163,10 +163,7 @@
     <!-- 卡组，墓地，环境卡槽区 -->
     <div class="rside-field colm-deckfield height-total clearf">
       <div class="item env">
-        <img id="p1-gameout" class="card-gameout" onmouseover="" src="">
-      </div>
-      <div class="item tomb">
-        <img id="p1-tomb" class="card-tomb" onmouseover="" src="">
+        <img id="p1-env" class="card" onmouseover="" src="">
       </div>
       <div class="item deck">
         <img id="deck_r" class="card" src="image/cards/cardback.jpg" alt="cardback" onclick="drawCard()">
@@ -176,9 +173,9 @@
     <div class="card-selection">
       <div id="select-area" class="selection-area"></div>
       <div class="button-area">
-        <button class="button" type="button" onclick="sf_selectCard('deck')">从牌组中选择（刷新列表）</button>
-        <button class="button" type="button" onclick="sf_selectCard('p1tomb')">从我方墓地选择（刷新列表）</button>
-        <button class="button" type="button" onclick="sf_selectCard('p2tomb')">从对方墓地选择（刷新列表）</button>
+        <button class="button" type="button" onclick="sf_buttons('deck')">从牌组中选择（刷新列表）</button>
+        <button class="button" type="button" onclick="sf_buttons('p1tomb')">从我方墓地选择（刷新列表）</button>
+        <button class="button" type="button" onclick="sf_buttons('p2tomb')">从对方墓地选择（刷新列表）</button>
         <button class="button" type="button" onclick="shuffleDeck()">洗牌</button>
       </div>
     </div>

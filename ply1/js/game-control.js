@@ -18,6 +18,12 @@ var SelectedCard = {  //被选中的卡对象
     player: "null"  //玩家号
 };
 
+var sf_Card = {
+    type: "null",  //卡的来源类型（我方卡组，我方墓地，对方墓地）
+    player: "null",  //记录副面板显示卡片的玩家类型
+    size: 0  //记录副面板显示卡片的数量
+};
+
 // 储存场上卡片信息（10张卡的图片src，状态）
 var fieldArrayPly1 = { 
     FieldCards: [
@@ -48,6 +54,9 @@ var fieldArrayPly2 = {
         { "imgsrc": "null", "state": "null"},
     ] 
 };
+
+var sf_CardPly = true;  //记录副面板显示卡片的玩家类型（true代表P1，false代表P2）
+var sf_CardSetSize = 0;  //记录副面板显示卡片的数量
 
 //fieldArrayPly1.FieldCards[0].imgsrc = "aa";
 
@@ -118,6 +127,7 @@ function shuffle(arr) {
  */
 function shuffleDeck() {
     P1Deck = shuffle(cloneArr(P1Deck));
+    document.getElementById("select-area").innerHTML = "";  //清空副面板显示框
     alert("牌组已洗牌！");
 }
 
@@ -195,12 +205,12 @@ function selectCard(id, type, cardsrc, cardNo, ply) {
  * 手牌的是img容器而场上用的是item容器
  */
 function cleanSelected() {
-    for (var i=0; i<8; i++) {
+    for (var i=0; i<8; i++) {  //清除手牌选中
         var handIDPly1 = 'p1-hand' + i.toString();
         element = document.getElementById(handIDPly1);
         element.setAttribute("class", "card");
     }
-    for (var i=0; i<10; i++) {
+    for (var i=0; i<10; i++) {  // 清楚场上选中
         var fieldIDPly1 = 'p1field' + i.toString();
         var fieldIDPly2 = 'p2field' + i.toString();
         element = document.getElementById(fieldIDPly1);
@@ -208,6 +218,12 @@ function cleanSelected() {
         element.setAttribute("class", "item");
         element2.setAttribute("class", "item");
     }
+    for (var i=0; i<sf_Card.size; i++) {
+        var sf_ID = 'sf-card' + i.toString();
+        element = document.getElementById(sf_ID);
+        element.setAttribute("class", "card");
+    }
+
 
     /*重置被选中的卡片信息 */
     SelectedCard.type = "null";
@@ -370,37 +386,62 @@ function changeState(cardtype) {
  * 将场上选中的卡牌回到手卡槽
  */
 function backtoHand() {
-    if (SelectedCard.type == 'field') {  //卡片必须来源于场上
-        
-        var cardslot = findEmptySlot('hand');  //寻找我方空的手牌卡槽 
-        var cardNo = SelectedCard.cardNo;  //被选中卡牌的序号
-        var fieldID;
+    var cardslot = findEmptySlot('hand');  //寻找我方空的手牌卡槽 
+    var cardNo = SelectedCard.cardNo;  //被选中卡牌的序号
 
-        if (cardslot == -1) {
-            alert("手牌已满");
-        } else {
-            var handID = "p1-hand" + (cardslot).toString();
-            element = document.getElementById(handID);
+    if (cardslot == -1) {
+        alert("手牌已满");
+    } else {
+        var handID = "p1-hand" + (cardslot).toString();
+        element = document.getElementById(handID);
 
+        if (SelectedCard.type == 'field') {  //若卡片来源于场上
+            var fieldID;
+            
             /*我方场上卡牌从记录场上信息的数组中获取卡片 */
             if (SelectedCard.player == 'player1') {  
                 fieldID = "p1-field" + cardNo.toString();
                 element.src = SelectedCard.cardSrc;  //手牌获取被选中的卡片
                 fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
                 fieldArrayPly1.FieldCards[cardNo].state = "null";
-
+                
             /*对方场上卡牌直接从容器中获取卡片（必须是正面表示的卡片） */
-            } else if (SelectedCard.cardSrc != CardBackSrc) {  
+            } else if (SelectedCard.cardSrc != CardBackSrc) {
                 fieldID = "p2-field" + cardNo.toString();
                 element.src = document.getElementById(fieldID).src;
-            }
+            } 
             
-            /*更新战场并通知对方玩家也执行战场更新函数 */
+            /**
+             * 更新战场
+             * 通知对方玩家也更新战场
+             */
             updateField(fieldID, "null", "");
+    
+        } else if (SelectedCard.type != 'hand') {  //若卡片来源于卡组或墓地
+            /*我方牌组，墓地的卡片回到我方手牌 */
+            if (SelectedCard.player == 'player1') {
+                element.src = SelectedCard.cardSrc;
 
-            /*清空所有选中状态 */
-            cleanSelected();
+                /*更新 卡组/墓地 列表并刷新副面板显示 */
+                if (sf_Card.type == 'deck') {
+                    P1Deck.splice(SelectedCard.cardNo, 1);
+                    sf_buttons('deck');
+                } else if (sf_Card.type == 'p1tomb') {
+                    P1Tomb.splice(SelectedCard.cardNo, 1);
+                    sf_buttons('p1tomb');
+                }
+            /*对方墓地的卡片回到我方手牌 */
+            } else if (SelectedCard.player == 'player2') {
+                
+            }
+
+            /**
+             * 通知对方玩家更新 墓地/手卡
+             */
         }
+
+        /*清空所有选中状态 */
+        cleanSelected();
     }
 }
 
@@ -421,7 +462,7 @@ function backtoDeck() {
             /**
              * 告知对手手卡变动
              */
-        } else {  //场上卡片回到卡组
+        } else if (SelectedCard.type == 'field') {  //场上卡片回到卡组
             var fieldID = "p1-field" + cardNo.toString();
             P1Deck.push(fieldArrayPly1.FieldCards[cardNo].imgsrc);  //卡片src存回卡组
             fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
@@ -429,6 +470,8 @@ function backtoDeck() {
 
             /*更新战场并通知对方玩家也执行战场更新函数 */
             updateField(fieldID, "null", "");
+        } else {
+            alert("请先将卡片拿到手牌再放回卡组");
         }
 
         /*清空所有选中状态 */
@@ -448,26 +491,28 @@ function sendtoTomb() {
     var fieldID; 
     
     if (SelectedCard.player == 'player1') {
-        P1Tomb.push(cardsrc);  //将选中卡片的src存入墓地数组
-        document.getElementById('p1-tomb').src = cardsrc;
-
         if (SelectedCard.type == 'hand') {
             var handID = "p1-hand" + (SelectedCard.cardNo).toString();
             element = document.getElementById(handID);
             element.src = "";  //手牌该卡消失
+            P1Tomb.push(cardsrc);  //将选中卡片的src存入墓地数组
+            document.getElementById('p1-tomb').src = cardsrc;
 
             /**
              * 告知对方更新我方手牌数
              */
-        } else {
+        } else if (SelectedCard.type == 'field') {
             fieldID = "p1-field" + cardNo.toString();
             fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
             fieldArrayPly1.FieldCards[cardNo].state = "null";
+            P1Tomb.push(cardsrc);  //将选中卡片的src存入墓地数组
             updateField(fieldID, "null", "");  //更新战场
 
             /**
              * 告知对方更新我方战场
              */
+        } else {
+            alert("请先将卡片拿到手牌再放入墓地");
         }
 
         /*清空所有选中状态 */
@@ -483,36 +528,72 @@ function sendtoTomb() {
  * 目前这块区域命名为selection-field（暂时没有更好的名字）
  */
 
-function sf_selectCard(type) {
+/**
+ * 选择副面板显示的内容（我方卡组/我方墓地/对方卡组）
+ * @param {string} type - button type (P1 deck/P1 tomb/ P2 deck)
+ */
+function sf_buttons(type) {
     var selectArea = document.getElementById("select-area");
-    selectArea.innerHTML = "";
+    selectArea.innerHTML = "";  //清空副面板显示框
 
     var cardset = [];
 
     switch (type) {
         case "deck":
             cardset = P1Deck;
+            sf_Card.player = "player1";
+            sf_Card.type = "deck";
             break;
         case "p1tomb":
             cardset = P1Tomb;
+            sf_Card.player = "player1";
+            sf_Card.type = "p1tomb";
             break;
         case "p2tomb":
             cardset = P2Tomb;
+            sf_Card.player = "player2";
+            sf_Card.type = "p2tomb";
+            break;
+        default: break;
     }
 
-    for (i=0; i<cardset.length; i++) {
+    sf_Card.size = cardset.length;
+    for (i=0; i<sf_Card.size; i++) {
         var cardImg = document.createElement("img");
-        cardImg.id = i.toString();
+        cardImg.id = "sf-card" + i.toString();
         cardImg.setAttribute("class", "card");
         cardImg.setAttribute("onmouseover", "sf_showInfo(this.src)");
+        cardImg.setAttribute("onclick", "sf_selectCard(this.id, this.src)");
         cardImg.src = cardset[i];
         selectArea.appendChild(cardImg);
     }
 }
 
+/**
+ * 显示副面板中被鼠标指到的卡片
+ * @param {string} cardsrc - card img source 
+ */
 function sf_showInfo(cardsrc) {
     if (cardsrc != emptysrc) {
         element = document.getElementById('card-info');
         element.src = cardsrc;
+    }
+}
+
+/**
+ * 在副面板中选中卡片
+ * @param {int} id - selection field img container id 
+ * @param {string} cardsrc - selected card img source
+ */
+function sf_selectCard(id, cardsrc) {
+    if (cardsrc != emptysrc) {
+        cleanSelected();  //选择卡片之前首先清空场上已选中的卡片样式再更新
+        element = document.getElementById(id);
+        element.setAttribute("class", "card-selected");
+
+        SelectedCard.player = sf_Card.player;
+        SelectedCard.type = sf_Card.type;  //我方卡组/我方墓地/对方墓地
+        SelectedCard.cardNo = parseInt(id.replace("sf-card", ""));  //用replace去掉id中的英文字符来获取数字字符
+        SelectedCard.cardSrc = cardsrc;  //直接从img容器获取src
     }
 }

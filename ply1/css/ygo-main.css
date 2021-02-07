@@ -76,7 +76,10 @@
 }
 
 .rside-field .env {  /* 环境卡卡槽*/
-  margin: 240px 30px 50px 30px;
+  margin-top: 410px;
+  margin-bottom: 30px;
+  margin-left: 30px;
+  margin-right: 30px;
 }
 
 .rside-field .card {
@@ -87,18 +90,6 @@
 
 .rside-field .card:hover {
   border: 3px solid #FFFF37;
-}
-
-.rside-field .card-tomb {
-  width: 96px;
-  height: 140px;
-  margin: 5px 3px;
-}
-
-.rside-field .card-gameout {
-  width: 96px;
-  height: 140px;
-  margin: 5px 3px;
 }
 
 /* 主卡牌区*/
@@ -272,6 +263,16 @@
   margin-right: 5px;
   margin-top: 3px;
   margin-bottom: 3px;
+}
+
+.card-selection .selection-area .card-selected {
+  width: 96px;
+  height: 140px;
+  margin-left: 8px; 
+  margin-right: 5px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border: 1px solid #FFFF37;
 }
 
 .card-selection .button-area {
