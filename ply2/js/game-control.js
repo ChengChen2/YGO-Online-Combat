@@ -60,7 +60,7 @@ var fieldArrayPly2 = {
 /*---------------------游戏对战连接部分----------------------- */
 
 //建立连接
-var playerID = "player1";  //独立玩家ID
+var playerID = "player2";  //独立玩家ID
 var ws = new WebSocket("ws://192.168.14.1:9999");
 
 function wsSend(content) {  //由于传输的message类型多样，由各函数自行编码后传递
