@@ -39,6 +39,7 @@ wss.on('connection', function (ws) {
                 break;
             case "message":
                 wsSend(pid, msg);  //将一位玩家发来的消息原封不动发给另一位玩家
+                console.log("client [%s] send message [%s]", pid, msg.msgtype);
                 break;
         }
     });

@@ -55,8 +55,6 @@ var fieldArrayPly2 = {
     ] 
 };
 
-//fieldArrayPly1.FieldCards[0].imgsrc = "aa";
-
 /*---------------------游戏对战连接部分----------------------- */
 
 //建立连接
@@ -91,13 +89,57 @@ ws.onmessage = function(message) {
             var updateType = msg.updateType;
             updateP2Hand(handNo, updateType);
             break;
+        case 'updateField':
+            var fieldID = msg.fieldID;
+            var state = msg.state;
+            var cardsrc = msg.cardsrc;
+            updateField(fieldID, state, cardsrc);
+            break;
     }
 }
 
+/**
+ * 编码令对方更新手卡的message并发送
+ * @param {string} updateType - updating type
+ * @param {*} handNo - hand slot number
+ */
+function messageHand(updateType, handNo) {
+    var message_hand = JSON.stringify({
+        "type": "message",  //向服务器告知的消息类型
+        "pid": playerID,  //向服务器告知的本玩家ID
+        "msgtype": "updateHand",  //向对方玩家告知的更新类型
+        "updateType": updateType,  //向对方玩家告知增/减手卡
+        "handNo": handNo  //向对方玩家告知被更新的卡槽
+    });
+    wsSend(message_hand);
+}
+
+/**
+ * 编码令对方更新战场的message并发送
+ * @param {string} state - card state
+ * @param {string} fieldID - updated card slot ID
+ * @param {string} cardsrc - card img src
+ */
+function messageField(state, fieldID, cardsrc) {
+    var message_field = JSON.stringify({
+        "type": "message",  //向服务器告知的消息类型
+        "pid": playerID,  //向服务器告知的本玩家ID
+        "msgtype": "updateField",  //向对方玩家告知的更新类型
+        "state": state,  //卡片放置状态
+        "fieldID": fieldID,  //需更新的卡槽ID
+        "cardsrc": cardsrc  //放置的卡片src
+    });
+    wsSend(message_field);
+}
 
 
 //----------------------------------------------------------------
-/*更新对方手牌区域 */
+/**
+ * 更新对方手牌区域
+ * 对方手牌均为卡片背面图片
+ * @param {string} handNo - updated hand slot number 
+ * @param {*} updateType - updating type(add/reduce)
+ */
 function updateP2Hand(handNo, updateType) {
     var handID = 'p2-hand' + handNo;
     element = document.getElementById(handID);
@@ -133,7 +175,6 @@ window.onload = function() {
 //----------------------------------------------------------------
 /*抽取牌组最上方一张卡至手卡 */
 function drawCard() {
-
     for (var i=0; i<8; i++) {
         var handID = 'p1-hand' + i.toString();
         element = document.getElementById(handID);
@@ -143,14 +184,7 @@ function drawCard() {
           /**
            * 告知对手哪张手卡卡槽添加了一张卡
            */
-          var message = JSON.stringify({
-              "type": "message",  //向服务器告知的消息类型
-              "pid": playerID,  //向服务器告知的本玩家ID
-              "msgtype": "updateHand",  //向对方玩家告知的更新类型
-              "updateType": "add",  //向对方玩家告知增/减手卡
-              "handNo": i.toString()  //向对方玩家告知被更新的卡槽
-          });
-          wsSend(message);
+          messageHand('add', i);
           break;
         }
     }
@@ -249,9 +283,10 @@ function selectCard(id, type, cardsrc, cardNo, ply) {
         } else {
             element = document.getElementById(id);  
             element.setAttribute("class", "item-selected");
-            if (ply = 'player1') {
+            console.log(ply);
+            if (ply == 'player1') {
                 SelectedCard.cardSrc = fieldArrayPly1.FieldCards[cardNo].imgsrc;  //若从我方场上选择则由场上状态数组获取卡片src
-            } else {
+            } else if (ply == 'player2') {
                 SelectedCard.cardSrc = cardsrc;  //若从对方场上选择则直接从img容器获取src
             }
         }
@@ -308,7 +343,8 @@ function placeCard(placetype, cardtype) {
     } else {
         if (SelectedCard.type == 'hand') {  //放置卡片必须来源于手牌
             /*获取被选中手卡信息 */
-            var handID = "p1-hand" + (SelectedCard.cardNo).toString();
+            var handslot = (SelectedCard.cardNo).toString();
+            var handID = "p1-hand" + handslot;
             element = document.getElementById(handID);
             cardsrc = element.src;
             element.src = "";  //手牌该卡消失
@@ -325,7 +361,11 @@ function placeCard(placetype, cardtype) {
             /**
              * 放置后告知对手执行战场更新函数;
              * 放置完成后记得告诉对手哪张手卡消失了;
+             * 注意：我方战场变化对对方来说是P2;
              */
+            var updateID = "p2-field" + cardslot.toString();
+            messageField(placetype, updateID, cardsrc);
+            messageHand('reduce', handslot);
         }
     }
 }
@@ -434,6 +474,8 @@ function changeState(cardtype) {
         /**
          * 告知对手某一卡槽的表示形式发生变化，执行战场更新函数
          */
+        var updateID = "p2-field" + (SelectedCard.cardNo).toString();
+        messageField(cardstate, updateID, cardsrc);
     }
 }
 
@@ -461,17 +503,26 @@ function backtoHand() {
                 element.src = SelectedCard.cardSrc;  //手牌获取被选中的卡片
                 fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
                 fieldArrayPly1.FieldCards[cardNo].state = "null";
+
+                /**
+                 * 通知对方更新战场
+                 */
+                var updateID = "p2-field" + cardNo.toString();
+                messageField("null", updateID, "");
                 
             /*对方场上卡牌直接从容器中获取卡片（必须是正面表示的卡片） */
             } else if (SelectedCard.cardSrc != CardBackSrc) {
                 fieldID = "p2-field" + cardNo.toString();
                 element.src = document.getElementById(fieldID).src;
+
+                /**
+                 * 通知对方更新战场
+                 */
+                var updateID = "p1-field" + cardNo.toString();
+                messageField("null", updateID, "");
             } 
             
-            /**
-             * 更新战场
-             * 通知对方玩家也更新战场
-             */
+            /*更新我方战场 */
             updateField(fieldID, "null", "");
     
         } else if (SelectedCard.type != 'hand') {  //若卡片来源于卡组或墓地
@@ -500,6 +551,7 @@ function backtoHand() {
         /**
          * 通知对方更新手卡数
          */
+        messageHand("add", cardslot);
 
         /*清空所有选中状态 */
         cleanSelected();
