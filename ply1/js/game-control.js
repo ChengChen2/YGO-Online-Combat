@@ -43,6 +43,7 @@ var fieldArrayPly1 = {
 
 //建立连接
 var playerID = "player1";  //独立玩家ID
+//var ws = new WebSocket("ws://192.168.31.170:9999");
 var ws = new WebSocket("ws://192.168.14.1:9999");
 
 function wsSend(content) {  //由于传输的message类型多样，由各函数自行编码后传递
@@ -385,7 +386,7 @@ function placeCard(placetype, cardtype) {
             var handslot = (SelectedCard.cardNo).toString();
             var handID = "p1-hand" + handslot;
             element = document.getElementById(handID);
-            cardsrc = element.src;
+            cardsrc = SelectedCard.cardSrc;
             element.src = "";  //手牌该卡消失
             cleanSelected();  //取消所有选中状态
 
