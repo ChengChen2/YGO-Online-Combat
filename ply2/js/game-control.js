@@ -2,12 +2,11 @@
 
 /*--------------------------全局变量-------------------------- */
 
-var P1DeckName = "Deck_KaiMa";  //我方牌组名
-var P1DeckNum = 41;  //我方牌组卡片数量
+var P1DeckName = "Deck_YouGi";  //我方牌组名
+var P1DeckNum = 13;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
-var P2Deck = [];  //对方牌组
 var P1Tomb = [];  //我方墓地（卡片src）
 var P2Tomb = [];  //对方墓地
 
@@ -26,21 +25,6 @@ var sf_Card = {
 
 // 储存场上卡片信息（10张卡的图片src，状态）
 var fieldArrayPly1 = { 
-    FieldCards: [
-        { "imgsrc": "null", "state": "null"}, 
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-        { "imgsrc": "null", "state": "null"},
-    ] 
-};
-
-var fieldArrayPly2 = { 
     FieldCards: [
         { "imgsrc": "null", "state": "null"}, 
         { "imgsrc": "null", "state": "null"},
@@ -95,6 +79,16 @@ ws.onmessage = function(message) {
             var cardsrc = msg.cardsrc;
             updateField(fieldID, state, cardsrc);
             break;
+        case 'updateTomb':
+            var updateType = msg.updateType;
+            var ply = msg.ply;
+            var cardNo = msg.cardNo;
+            var cardsrc = msg.cardsrc;
+            updateTomb(updateType, ply, cardNo, cardsrc);
+            break;
+        default:
+            alert("error message!");
+            break;
     }
 }
 
@@ -115,7 +109,7 @@ function messageHand(updateType, handNo) {
 }
 
 /**
- * 编码令对方更新战场的message并发送
+ * 编码令对方更新（我方/对方）战场的message并发送
  * @param {string} state - card state
  * @param {string} fieldID - updated card slot ID
  * @param {string} cardsrc - card img src
@@ -132,13 +126,33 @@ function messageField(state, fieldID, cardsrc) {
     wsSend(message_field);
 }
 
+/**
+ * 编码令对方更新（我方/对方）墓地message并发送
+ * @param {string} updateType - updating type (add/reduce) 
+ * @param {string} ply - who's tomb should be updated (send p1 means your component, send p2 means yourself)
+ * @param {*} cardNo - card number in tomb
+ * @param {string} cardsrc - card img src
+ */
+function messageTomb(updateType, ply, cardNo, cardsrc) {
+    var message_tomb = JSON.stringify({
+        "type": "message",  //向服务器告知的消息类型
+        "pid": playerID,  //向服务器告知的本玩家ID
+        "msgtype": "updateTomb",  //向对方玩家告知的更新类型
+        "updateType": updateType,  //向对方玩家告知增/减墓地卡片
+        "ply": ply,  //定义谁的墓地需被更新, player1表示你的对手，player2表示你自己
+        "cardNo": cardNo,  //卡片序号，剔出墓地卡片时需要用到
+        "cardsrc": cardsrc  //卡片的src，新增墓地卡片时需要用到
+    });
+    wsSend(message_tomb);
+}
+
 
 //----------------------------------------------------------------
 /**
  * 更新对方手牌区域
  * 对方手牌均为卡片背面图片
  * @param {string} handNo - updated hand slot number 
- * @param {*} updateType - updating type(add/reduce)
+ * @param {string} updateType - updating type (add/reduce)
  */
 function updateP2Hand(handNo, updateType) {
     var handID = 'p2-hand' + handNo;
@@ -149,6 +163,31 @@ function updateP2Hand(handNo, updateType) {
         element.src = CardBackSrc;
     } else {
         element.src = "";
+    }
+}
+
+/**
+ * 根据接收的message更新我方/对方墓地
+ * @param {string} updateType - updating type (add/reduce) 
+ * @param {string} ply - who's tomb should be updated (receive p1 means yourself, p2 means your component)
+ * @param {*} cardNo - card number in tomb
+ * @param {string} cardsrc - card img src
+ */
+function updateTomb(updateType, ply, cardNo, cardsrc) {
+    /*向墓地增卡一定是对方将卡牌送入对方墓地（对方无法将卡牌放入我方墓地） */
+    if (updateType == 'add') {  
+        P2Tomb.push(cardsrc);
+        sf_buttons('p2tomb');
+
+    /*向墓地剔出卡片则分情况 */
+    } else if (updateType == 'reduce') {  
+        if (ply == 'player1') {  //对方拿走我方墓地卡片
+            P1Tomb.splice(cardNo, 1);
+            sf_buttons('p1tomb');  //刷新副面板显示
+        } else {  //对方拿走对方墓地卡片，我方执行同步
+            P2Tomb.splice(cardNo, 1);
+            sf_buttons('p2tomb');
+        }
     }
 }
 
@@ -494,7 +533,8 @@ function backtoHand() {
         var handID = "p1-hand" + (cardslot).toString();
         element = document.getElementById(handID);
 
-        if (SelectedCard.type == 'field') {  //若卡片来源于场上
+        /*## 若卡片来源于场上 */
+        if (SelectedCard.type == 'field') {  
             var fieldID;
             
             /*我方场上卡牌从记录场上信息的数组中获取卡片 */
@@ -524,34 +564,50 @@ function backtoHand() {
             
             /*更新我方战场 */
             updateField(fieldID, "null", "");
-    
-        } else if (SelectedCard.type != 'hand') {  //若卡片来源于卡组或墓地
-            /*我方牌组，墓地的卡片回到我方手牌 */
+
+            /**
+              * 通知对方更新手卡数
+              */
+            messageHand("add", cardslot);
+
+        /*## 若卡片来源于卡组或墓地 */
+        } else if (SelectedCard.type != 'hand') {  
+            /*我方牌组/墓地的卡片回到我方手牌 */
             if (SelectedCard.player == 'player1') {
-                element.src = SelectedCard.cardSrc;
+                element.src = SelectedCard.cardSrc;  //手牌获取该卡片src
 
                 /*更新 卡组/墓地 列表并刷新副面板显示 */
                 if (sf_Card.type == 'deck') {
-                    P1Deck.splice(SelectedCard.cardNo, 1);
-                    sf_buttons('deck');
+                    P1Deck.splice(cardNo, 1);  //剔出卡组中的被选中卡片
+                    sf_buttons('deck');  //刷新副面板显示
                 } else if (sf_Card.type == 'p1tomb') {
-                    P1Tomb.splice(SelectedCard.cardNo, 1);
+                    P1Tomb.splice(cardNo, 1);
                     sf_buttons('p1tomb');
+
+                    /**
+                     * 通知对方玩家更新我方墓地（对于对方来说，我方是player2）
+                     */
+                    messageTomb("reduce", "player2", cardNo, SelectedCard.cardSrc);
                 }
+
+                /**
+                * 通知对方更新手卡数
+                */
+                messageHand("add", cardslot);
+
             /*对方墓地的卡片回到我方手牌 */
             } else if (SelectedCard.player == 'player2') {
-                
+                element.src = SelectedCard.cardSrc;  //手牌获取该卡片src
+                P2Tomb.splice(cardNo, 1);  //剔出对方墓地中的对应卡片
+                sf_buttons('p2tomb');
+
+                /**
+                 * 通知对方玩家我方手卡数及对方墓地 （对于对方来说，他自己是player1）
+                 */
+                messageHand("add", cardslot);
+                messageTomb("reduce", "player1", cardNo, SelectedCard.cardSrc);
             }
-
-            /**
-             * 通知对方玩家更新 墓地
-             */
         }
-
-        /**
-         * 通知对方更新手卡数
-         */
-        messageHand("add", cardslot);
 
         /*清空所有选中状态 */
         cleanSelected();
@@ -566,7 +622,8 @@ function backtoDeck() {
     if (SelectedCard.player == 'player1') {  //只允许将我方的卡片送回牌组
         var cardNo = SelectedCard.cardNo;
 
-        if (SelectedCard.type == 'hand') {  //手牌卡片回到卡组
+        /*手牌卡片回到卡组 */
+        if (SelectedCard.type == 'hand') {  
             var handID = "p1-hand" + cardNo.toString();
             element = document.getElementById(handID);
             P1Deck.push(element.src);  //卡片src存回卡组
@@ -575,14 +632,26 @@ function backtoDeck() {
             /**
              * 告知对手手卡变动
              */
-        } else if (SelectedCard.type == 'field') {  //场上卡片回到卡组
+            messageHand("reduce", cardNo);
+            alert("卡片已回到卡组最上方！");
+
+        /*场上卡片回到卡组 */
+        } else if (SelectedCard.type == 'field') {  
             var fieldID = "p1-field" + cardNo.toString();
             P1Deck.push(fieldArrayPly1.FieldCards[cardNo].imgsrc);  //卡片src存回卡组
             fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
             fieldArrayPly1.FieldCards[cardNo].state = "null";
 
-            /*更新战场并通知对方玩家也执行战场更新函数 */
+            /*更新战场 */
             updateField(fieldID, "null", "");
+
+            /**
+             * 通知对方玩家更新我方战场
+             */
+            var updateID = "p2-field" + cardNo.toString();
+            messageField("null", updateID, "");
+            alert("卡片已回到卡组最上方！");
+
         } else {
             alert("请先将卡片拿到手牌再放回卡组");
         }
@@ -603,16 +672,20 @@ function sendtoTomb() {
     var fieldID; 
     
     if (SelectedCard.player == 'player1') {
+        /*若卡片来源于手牌 */
         if (SelectedCard.type == 'hand') {
-            var handID = "p1-hand" + (SelectedCard.cardNo).toString();
+            var handID = "p1-hand" + cardNo.toString();
             element = document.getElementById(handID);
             element.src = "";  //手牌该卡消失
             P1Tomb.push(cardsrc);  //将选中卡片的src存入墓地数组
-            document.getElementById('p1-tomb').src = cardsrc;
 
             /**
-             * 告知对方更新我方手牌数
+             * 告知对方更新我方手牌数及墓地
              */
+            messageHand("reduce", cardNo);
+            messageTomb("add", "player2", "null", cardsrc);  //向墓地添加卡片不需要cardNo
+
+        /*若卡片来源于场上 */
         } else if (SelectedCard.type == 'field') {
             fieldID = "p1-field" + cardNo.toString();
             fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
@@ -621,8 +694,11 @@ function sendtoTomb() {
             updateField(fieldID, "null", "");  //更新战场
 
             /**
-             * 告知对方更新我方战场
+             * 告知对方更新我方战场及墓地
              */
+            var updateID = "p2-field" + cardNo.toString();
+            messageField("null", updateID, "");
+            messageTomb("add", "player2", "null", cardsrc);
         } else {
             alert("请先将卡片拿到手牌再放入墓地");
         }
@@ -669,6 +745,7 @@ function sf_buttons(type) {
         default: break;
     }
 
+    /*副面板显示需显示的内容（我方卡组/墓地/对方墓地的全部卡片） */
     sf_Card.size = cardset.length;
     for (i=0; i<sf_Card.size; i++) {
         var cardImg = document.createElement("img");
