@@ -2,8 +2,8 @@
 
 /*--------------------------全局变量-------------------------- */
 
-var P1DeckName = "Deck_KaiMa";  //我方牌组名
-var P1DeckNum = 41;  //我方牌组卡片数量
+var P1DeckName = "Deck_DHero";  //我方牌组名
+var P1DeckNum = 47;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
