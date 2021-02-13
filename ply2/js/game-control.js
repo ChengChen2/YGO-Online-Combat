@@ -3,7 +3,7 @@
 /*--------------------------全局变量-------------------------- */
 
 var P1DeckName = "Deck_KaiMa";  //我方牌组名
-var P1DeckNum = 49;  //我方牌组卡片数量
+var P1DeckNum = 41;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
@@ -43,8 +43,8 @@ var fieldArrayPly1 = {
 
 //建立连接
 var playerID = "player2";  //独立玩家ID
-var ws = new WebSocket("ws://192.168.31.170:9999");
-//var ws = new WebSocket("ws://192.168.14.1:9999");
+//var ws = new WebSocket("ws://192.168.31.170:9999");
+var ws = new WebSocket("ws://192.168.14.1:9999");
 
 function wsSend(content) {  //由于传输的message类型多样，由各函数自行编码后传递
     if (ws.readyState === WebSocket.OPEN) {
@@ -703,6 +703,8 @@ function sendtoTomb() {
         } else {
             alert("请先将卡片拿到手牌再放入墓地");
         }
+
+        sf_buttons('p1tomb');  //刷新副面板显示
 
         /*清空所有选中状态 */
         cleanSelected();

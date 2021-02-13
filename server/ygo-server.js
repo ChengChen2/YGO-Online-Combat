@@ -49,5 +49,5 @@ wss.on('connection', function (ws) {
         console.log("Closing things");
         process.exit();
     });
-
+    
 });
