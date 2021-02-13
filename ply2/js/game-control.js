@@ -2,8 +2,8 @@
 
 /*--------------------------全局变量-------------------------- */
 
-var P1DeckName = "Deck_DHero";  //我方牌组名
-var P1DeckNum = 47;  //我方牌组卡片数量
+var P1DeckName = "Deck_YouGi";  //我方牌组名
+var P1DeckNum = 57;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
@@ -388,7 +388,6 @@ function placeCard(placetype, cardtype) {
             element = document.getElementById(handID);
             cardsrc = SelectedCard.cardSrc;
             element.src = "";  //手牌该卡消失
-            cleanSelected();  //取消所有选中状态
 
             /*更新战场信息 */
             fieldArrayPly1.FieldCards[cardslot].imgsrc = cardsrc;
@@ -437,6 +436,9 @@ function updateField(fieldID, cardstate, cardsrc) {
     } else {
         element.src = cardsrc;
     }
+
+    /*清空所有选中状态 */
+    cleanSelected();
 }
 
 /**
@@ -705,9 +707,6 @@ function sendtoTomb() {
         }
 
         sf_buttons('p1tomb');  //刷新副面板显示
-
-        /*清空所有选中状态 */
-        cleanSelected();
     }
 }
 

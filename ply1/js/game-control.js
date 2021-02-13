@@ -388,7 +388,6 @@ function placeCard(placetype, cardtype) {
             element = document.getElementById(handID);
             cardsrc = SelectedCard.cardSrc;
             element.src = "";  //手牌该卡消失
-            cleanSelected();  //取消所有选中状态
 
             /*更新战场信息 */
             fieldArrayPly1.FieldCards[cardslot].imgsrc = cardsrc;
@@ -437,6 +436,9 @@ function updateField(fieldID, cardstate, cardsrc) {
     } else {
         element.src = cardsrc;
     }
+
+    /*清空所有选中状态 */
+    cleanSelected();
 }
 
 /**
@@ -705,9 +707,6 @@ function sendtoTomb() {
         }
 
         sf_buttons('p1tomb');  //刷新副面板显示
-
-        /*清空所有选中状态 */
-        cleanSelected();
     }
 }
 
