@@ -43,8 +43,8 @@ var fieldArrayPly1 = {
 
 //建立连接
 var playerID = "player1";  //独立玩家ID
-//var ws = new WebSocket("ws://192.168.31.170:9999");
-var ws = new WebSocket("ws://192.168.14.1:9999");
+var ws = new WebSocket("ws://192.168.31.170:9999");
+//var ws = new WebSocket("ws://192.168.14.1:9999");
 
 function wsSend(content) {  //由于传输的message类型多样，由各函数自行编码后传递
     if (ws.readyState === WebSocket.OPEN) {
@@ -405,6 +405,9 @@ function placeCard(placetype, cardtype) {
             var updateID = "p2-field" + cardslot.toString();
             messageField(placetype, updateID, cardsrc);
             messageHand('reduce', handslot);
+
+            /*清空所有选中状态 */
+            cleanSelected();
         }
     }
 }
@@ -436,9 +439,6 @@ function updateField(fieldID, cardstate, cardsrc) {
     } else {
         element.src = cardsrc;
     }
-
-    /*清空所有选中状态 */
-    cleanSelected();
 }
 
 /**
@@ -705,6 +705,9 @@ function sendtoTomb() {
         } else {
             alert("请先将卡片拿到手牌再放入墓地");
         }
+
+        /*清空所有选中状态 */
+        cleanSelected();
 
         sf_buttons('p1tomb');  //刷新副面板显示
     }
