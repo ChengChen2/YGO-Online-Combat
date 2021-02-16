@@ -2,8 +2,8 @@
 
 /*--------------------------全局变量-------------------------- */
 
-var P1DeckName = "Deck_YouGi";  //我方牌组名
-var P1DeckNum = 57;  //我方牌组卡片数量
+var P1DeckName = "Deck_KaiMa";  //我方牌组名
+var P1DeckNum = 50;  //我方牌组卡片数量
 var CardBackSrc = "image/cards/cardback.jpg";  //卡片背面图片的src
 
 var P1Deck = [];  //我方牌组（储存我方所有卡片src）
@@ -221,6 +221,10 @@ function drawCard() {
         if (element.src == emptysrc) {  //如果该卡槽为空
           element.src = P1Deck.pop();
 
+          /*触发抽卡音效 */
+          var snd = new Audio("sound/draw.wav");
+          snd.play();
+
           /**
            * 告知对手哪张手卡卡槽添加了一张卡
            */
@@ -261,6 +265,9 @@ function shuffle(arr) {
 function shuffleDeck() {
     P1Deck = shuffle(cloneArr(P1Deck));
     document.getElementById("select-area").innerHTML = "";  //清空副面板显示框
+    /*触发洗牌音效 */
+    var snd = new Audio("sound/shuffle.wav");
+    snd.play();
     alert("牌组已洗牌！");
 }
 
@@ -420,25 +427,62 @@ function placeCard(placetype, cardtype) {
  */
 function updateField(fieldID, cardstate, cardsrc) { 
     var stateclass;
-
-    if (cardstate == 'null') {  //若卡片移出场外则img容器的class回到默认的card
-        stateclass = "card";
-    } else {
-        stateclass = "card-" + cardstate;
-    }
-
     element = document.getElementById(fieldID);
-    element.setAttribute("class", stateclass);  //更新对应img容器的class
 
     /**
      * 如果是盖卡或背盖召唤直接显示卡片背面
      * 检查showCardInfo函数可知对于我方来说，即使卡片是背面图片仍可以显示卡片信息
      */
-    if (cardstate == 'back' || cardstate == 'off') {  
-        element.src = CardBackSrc;
-    } else {
-        element.src = cardsrc;
+    console.log(cardstate);
+    switch (cardstate) {
+        case 'off':
+        case 'back':
+            element.src = CardBackSrc;
+            stateclass = "card-" + cardstate;
+            /*触发背盖或盖卡音效 */
+            var snd = new Audio("sound/activate.wav");
+            snd.play();
+            break;
+        case 'change-off':
+            element.src = CardBackSrc;
+            stateclass = "card-" + cardstate.replace("change-", "");
+            break;
+        case 'change-back':  //通过更变形式背盖卡片
+            element.src = CardBackSrc
+            stateclass = "card-" + cardstate.replace("change-", "");
+            break;
+        case 'on':  //正常发动卡片
+            element.src = cardsrc;
+            stateclass = "card-" + cardstate;
+            /*触发发动卡片音效 */
+            var snd = new Audio("sound/activate.wav");
+            snd.play();
+            break;
+        case 'change-on':  //通过更变形式实现的打开盖卡
+            /*触发打开盖卡音效 */
+            element.src = cardsrc;
+            stateclass = "card-" + cardstate.replace("change-", "");
+            var snd = new Audio("sound/open.wav");
+            snd.play();
+            break;
+        case 'null':
+            stateclass = "card";
+            element.src = cardsrc;
+            break;
+        default:
+            element.src = cardsrc;
+            if (cardstate.search("change-") == -1) {  //正常召唤
+                stateclass = "card-" + cardstate;
+                /*触发发召唤怪兽音效 */
+                var snd = new Audio("sound/summon.wav");
+                snd.play();
+            } else {                                  //更变形式
+                stateclass = "card-" + cardstate.replace("change-", "");
+            }
+            break;
     }
+
+    element.setAttribute("class", stateclass);  //更新对应img容器的class
 }
 
 /**
@@ -511,6 +555,7 @@ function changeState(cardtype) {
         }
 
         fieldArrayPly1.FieldCards[SelectedCard.cardNo].state = cardstate;  //更新场上卡片状态信息
+        cardstate = "change-" + cardstate;
         updateField(fieldID, cardstate, cardsrc);  //更新指定卡槽
 
         /**
