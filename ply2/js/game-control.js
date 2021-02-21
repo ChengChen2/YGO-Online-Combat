@@ -236,14 +236,14 @@ function drawCard() {
 
 /*生成随机数 */
 function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min)
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 /*克隆数组 */
 function cloneArr(arr) {
     // 从第一个字符就开始 copy
     // slice(start,end) 方法可从已有的数组中返回选定的元素。
-    return arr.slice(0)
+    return arr.slice(0);
 }
 
 /*数组洗牌 */
@@ -251,12 +251,12 @@ function shuffle(arr) {
     let newArr = [];
     newArr = arr;
     for (let i = 0; i < newArr.length; i++) {
-        let j = getRandom(0, i)
-        let temp = newArr[i]
-        newArr[i] = newArr[j]
-        newArr[j] = temp
+        let j = getRandom(0, i);
+        let temp = newArr[i];
+        newArr[i] = newArr[j];
+        newArr[j] = temp;
     }
-    return newArr
+    return newArr;
 }
 
 /**
@@ -268,7 +268,7 @@ function shuffleDeck() {
     /*触发洗牌音效 */
     var snd = new Audio("sound/shuffle.wav");
     snd.play();
-    alert("牌组已洗牌！");
+    //alert("牌组已洗牌！");
 }
 
 
@@ -284,12 +284,13 @@ function shuffleDeck() {
 function showCardInfo(type, cardsrc, cardNo, ply) {
     if (cardsrc != emptysrc) {
         element = document.getElementById('card-info');
+        var CardSrc = "image" + cardsrc.split('image')[1];  //把带盘符的绝对路径改为相对路径
 
         switch(ply) {
             /*我方卡片一律显示 */
             case 'player1':
                 if (type == 'hand') {  //手卡均显示
-                    element.src = cardsrc;
+                    element.src = CardSrc;
                 } else {  //场上卡片按数组记录的img的src显示（若直接取img容器的src则无法看到我方盖卡）
                     element.src = fieldArrayPly1.FieldCards[cardNo].imgsrc;
                 }
@@ -299,7 +300,7 @@ function showCardInfo(type, cardsrc, cardNo, ply) {
                 if (type == 'hand') {  //手卡均不显示
                     element.src = CardBackSrc;
                 } else {  //场上卡片直接按容器的img值显示
-                    element.src = cardsrc;
+                    element.src = CardSrc;
                 }
                 break;
             default: break;
@@ -322,19 +323,21 @@ function selectCard(id, type, cardsrc, cardNo, ply) {
         SelectedCard.type = type;
         SelectedCard.cardNo = cardNo;
         SelectedCard.player = ply;
+        
+        //console.log("image" + cardsrc.split('image')[1]);
+        var CardSrc = "image" + cardsrc.split('image')[1];  //把带盘符的绝对路径改为相对路径
 
         if (type == 'hand') {
             element = document.getElementById(id);
             element.setAttribute("class", "card-selected");
-            SelectedCard.cardSrc = cardsrc;  //若从手牌选择直接从img容器获取src
+            SelectedCard.cardSrc = CardSrc;  //若从手牌选择直接从img容器获取src
         } else {
             element = document.getElementById(id);  
             element.setAttribute("class", "item-selected");
-            console.log(ply);
             if (ply == 'player1') {
                 SelectedCard.cardSrc = fieldArrayPly1.FieldCards[cardNo].imgsrc;  //若从我方场上选择则由场上状态数组获取卡片src
             } else if (ply == 'player2') {
-                SelectedCard.cardSrc = cardsrc;  //若从对方场上选择则直接从img容器获取src
+                SelectedCard.cardSrc = CardSrc;  //若从对方场上选择则直接从img容器获取src
             }
         }
     }
@@ -432,8 +435,8 @@ function updateField(fieldID, cardstate, cardsrc) {
     /**
      * 如果是盖卡或背盖召唤直接显示卡片背面
      * 检查showCardInfo函数可知对于我方来说，即使卡片是背面图片仍可以显示卡片信息
+     * 由于音效种类问题修改分类了多种情况
      */
-    console.log(cardstate);
     switch (cardstate) {
         case 'off':
         case 'back':
@@ -443,20 +446,20 @@ function updateField(fieldID, cardstate, cardsrc) {
             var snd = new Audio("sound/activate.wav");
             snd.play();
             break;
-        case 'change-off':
-            element.src = CardBackSrc;
-            stateclass = "card-" + cardstate.replace("change-", "");
-            break;
-        case 'change-back':  //通过更变形式背盖卡片
-            element.src = CardBackSrc
-            stateclass = "card-" + cardstate.replace("change-", "");
-            break;
         case 'on':  //正常发动卡片
             element.src = cardsrc;
             stateclass = "card-" + cardstate;
             /*触发发动卡片音效 */
             var snd = new Audio("sound/activate.wav");
             snd.play();
+            break;
+        case 'change-off':  //通过更变形式覆盖卡片
+            element.src = CardBackSrc;
+            stateclass = "card-" + cardstate.replace("change-", "");
+            break;
+        case 'change-back':  //通过更变形式背盖召唤卡片
+            element.src = CardBackSrc
+            stateclass = "card-" + cardstate.replace("change-", "");
             break;
         case 'change-on':  //通过更变形式实现的打开盖卡
             /*触发打开盖卡音效 */
@@ -555,7 +558,7 @@ function changeState(cardtype) {
         }
 
         fieldArrayPly1.FieldCards[SelectedCard.cardNo].state = cardstate;  //更新场上卡片状态信息
-        cardstate = "change-" + cardstate;
+        cardstate = "change-" + cardstate;  //为通过更变形式而导致的战场更新操作添加一个标签方便更新函数识别（因为更变形式不触发音效）
         updateField(fieldID, cardstate, cardsrc);  //更新指定卡槽
 
         /**
@@ -585,7 +588,7 @@ function backtoHand() {
         if (SelectedCard.type == 'field') {  
             var fieldID;
             
-            /*我方场上卡牌从记录场上信息的数组中获取卡片 */
+            /*我方 卡牌信息从用于存储被选中卡片信息的对象中获取 */
             if (SelectedCard.player == 'player1') {  
                 fieldID = "p1-field" + cardNo.toString();
                 element.src = SelectedCard.cardSrc;  //手牌获取被选中的卡片
@@ -593,24 +596,24 @@ function backtoHand() {
                 fieldArrayPly1.FieldCards[cardNo].state = "null";
 
                 /**
-                 * 通知对方更新战场
+                 * 通知对方更新战场信息
                  */
                 var updateID = "p2-field" + cardNo.toString();
                 messageField("null", updateID, "");
                 
-            /*对方场上卡牌直接从容器中获取卡片（必须是正面表示的卡片） */
+            /*对方 卡牌信息从用于存储被选中卡片信息的对象中获取（必须是正面表示的卡片） */
             } else if (SelectedCard.cardSrc != CardBackSrc) {
                 fieldID = "p2-field" + cardNo.toString();
-                element.src = document.getElementById(fieldID).src;
+                element.src = SelectedCard.cardSrc
 
                 /**
-                 * 通知对方更新战场
+                 * 通知对方更新战场信息
                  */
                 var updateID = "p1-field" + cardNo.toString();
                 messageField("null", updateID, "");
             } 
             
-            /*更新我方战场 */
+            /*更新战场信息 */
             updateField(fieldID, "null", "");
 
             /**
@@ -674,8 +677,8 @@ function backtoDeck() {
         if (SelectedCard.type == 'hand') {  
             var handID = "p1-hand" + cardNo.toString();
             element = document.getElementById(handID);
-            P1Deck.push(element.src);  //卡片src存回卡组
             element.src = ""; //手牌被选中卡片消失
+            P1Deck.push(SelectedCard.cardSrc);  //卡片src存回卡组
 
             /**
              * 告知对手手卡变动
@@ -686,7 +689,7 @@ function backtoDeck() {
         /*场上卡片回到卡组 */
         } else if (SelectedCard.type == 'field') {  
             var fieldID = "p1-field" + cardNo.toString();
-            P1Deck.push(fieldArrayPly1.FieldCards[cardNo].imgsrc);  //卡片src存回卡组
+            P1Deck.push(SelectedCard.cardSrc);  //卡片src存回卡组
             fieldArrayPly1.FieldCards[cardNo].imgsrc = "null";  //场上该卡的记录清空
             fieldArrayPly1.FieldCards[cardNo].state = "null";
 
@@ -701,7 +704,7 @@ function backtoDeck() {
             alert("卡片已回到卡组最上方！");
 
         } else {
-            alert("请先将卡片拿到手牌再放回卡组");
+            alert("请先将卡片拿到手牌再放回卡组");  //防止直接从卡组或墓地中选卡放回卡组
         }
 
         /*清空所有选中状态 */
@@ -748,7 +751,7 @@ function sendtoTomb() {
             messageField("null", updateID, "");
             messageTomb("add", "player2", "null", cardsrc);
         } else {
-            alert("请先将卡片拿到手牌再放入墓地");
+            alert("请先将卡片拿到手牌再放入墓地");  //防止直接从卡组或墓地中选卡放回墓地
         }
 
         /*清空所有选中状态 */
@@ -826,6 +829,7 @@ function sf_showInfo(cardsrc) {
  */
 function sf_selectCard(id, cardsrc) {
     if (cardsrc != emptysrc) {
+        var CardSrc = "image" + cardsrc.split('image')[1];
         cleanSelected();  //选择卡片之前首先清空场上已选中的卡片样式再更新
         element = document.getElementById(id);
         element.setAttribute("class", "card-selected");
@@ -833,6 +837,6 @@ function sf_selectCard(id, cardsrc) {
         SelectedCard.player = sf_Card.player;
         SelectedCard.type = sf_Card.type;  //我方卡组/我方墓地/对方墓地
         SelectedCard.cardNo = parseInt(id.replace("sf-card", ""));  //用replace去掉id中的英文字符来获取数字字符
-        SelectedCard.cardSrc = cardsrc;  //直接从img容器获取src
+        SelectedCard.cardSrc = CardSrc;  //直接从img容器获取src
     }
 }
