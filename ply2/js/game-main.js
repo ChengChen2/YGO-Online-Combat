@@ -2,10 +2,10 @@
 /**
  * [游戏主要控制]
  * 
+ * 全局变量
  * 游戏客户端设置;
  * 游戏初始化;
  * 客户端与服务端的通讯;
- * 全局变量;
  * 卡片信息显示;
  * 副控制面板;
  *  
@@ -256,13 +256,13 @@ function sf_buttons(type) {
     /*副面板显示需显示的内容（我方卡组/墓地/对方墓地的全部卡片） */
     sf_Card.size = cardset.length;
     for (i=0; i<sf_Card.size; i++) {
-        var cardImg = document.createElement("img");
-        cardImg.id = "sf-card" + i.toString();
-        cardImg.setAttribute("class", "card");
+        var cardImg = document.createElement("img");  //创建一个img容器
+        cardImg.id = "sf-card" + i.toString();  //设置容器id
+        cardImg.setAttribute("class", "card");  //设置style与相关函数
         cardImg.setAttribute("onmouseover", "sf_showInfo(this.src)");
         cardImg.setAttribute("onclick", "sf_selectCard(this.id, this.src)");
-        cardImg.src = cardset[i];
-        selectArea.appendChild(cardImg);
+        cardImg.src = cardset[i];  //赋予对应image
+        selectArea.appendChild(cardImg);  //添加该img容器到父容器
     }
 }
 
