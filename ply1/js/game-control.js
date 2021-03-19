@@ -169,6 +169,7 @@ for (var i=0; i<P1DeckNum; i++) {
     P1Deck.push(cardsrc);
 }
 
+
 //获取空的img src路径，方便其他函数判断卡槽是否为空
 //window.onload 使函数在html完全加载后执行
 var emptysrc;
@@ -221,7 +222,7 @@ function showCardInfo(type, cardsrc, cardNo, ply) {
 /**
  * 副控制面板
  * 从卡组中选择及从墓地中选择这块函数独立处理
- * 目前这块区域命名为selection-field（暂时没有更好的名字）
+ * 目前这块区域命名为sub-field（暂时没有更好的名字）
  */
 
 /**

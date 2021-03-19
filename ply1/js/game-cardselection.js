@@ -13,7 +13,7 @@
  * 选择卡片（游戏中始终只有一张卡牌处于选中状态）,并记录当前卡片信息
  * @param {string} id - container id
  * @param {string} type - card source type (hand/field)
- * @param {string} cardsrc - card url
+ * @param {string} cardsrc - card image url
  * @param {int} cardNo - card No
  * @param {string} ply - player tag
  */
@@ -21,6 +21,7 @@ function selectCard(id, type, cardsrc, cardNo, ply) {
     if (cardsrc != emptysrc) {
         cleanSelected();  //选择卡片之前首先清空场上已选中的卡片样式再更新
 
+        /*储存被选中卡片的信息 */
         SelectedCard.type = type;
         SelectedCard.cardNo = cardNo;
         SelectedCard.player = ply;
@@ -55,7 +56,7 @@ function cleanSelected() {
         element = document.getElementById(handIDPly1);
         element.setAttribute("class", "card");
     }
-    for (var i=0; i<10; i++) {  // 清楚场上选中
+    for (var i=0; i<10; i++) {  // 清除场上选中
         var fieldIDPly1 = 'p1field' + i.toString();
         var fieldIDPly2 = 'p2field' + i.toString();
         element = document.getElementById(fieldIDPly1);
@@ -63,7 +64,7 @@ function cleanSelected() {
         element.setAttribute("class", "item");
         element2.setAttribute("class", "item");
     }
-    for (var i=0; i<sf_Card.size; i++) {
+    for (var i=0; i<sf_Card.size; i++) {  //清除副控制面板选中
         var sf_ID = 'sf-card' + i.toString();
         element = document.getElementById(sf_ID);
         element.setAttribute("class", "card");

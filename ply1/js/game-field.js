@@ -18,7 +18,7 @@
  */
 function placeCard(placetype, cardtype) {
 
-    var cardslot = findEmptySlot(cardtype) //寻找空的卡槽
+    var cardslot = findEmptySlot(cardtype); //寻找空的卡槽
     var cardsrc;
 
     if(cardslot == -1) {
